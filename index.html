@@ -1,0 +1,648 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+#wrap{font-family:var(--font-sans,sans-serif);background:var(--color-background-primary);display:flex;flex-direction:column;height:100%}
+.toolbar{display:flex;flex-wrap:wrap;gap:6px;padding:10px 14px;border-bottom:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);align-items:center;flex-shrink:0}
+.tlabel{font-size:10px;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.06em;margin-right:2px;flex-shrink:0}
+.fsep{width:1px;height:18px;background:var(--color-border-secondary);margin:0 6px;flex-shrink:0}
+.pill{font-size:10px;padding:2px 8px;border-radius:20px;cursor:pointer;border:0.5px solid;transition:opacity .15s;white-space:nowrap;user-select:none}
+.pill.on{opacity:1}.pill.off{opacity:.3}
+.p-phsa{background:#E6F1FB;color:#0C447C;border-color:#378ADD}
+.p-hlth{background:#EAF3DE;color:#27500A;border-color:#639922}
+.p-fha{background:#FAECE7;color:#993C1D;border-color:#D85A30}
+.p-vch{background:#FBEAF0;color:#993556;border-color:#D4537E}
+.p-iha{background:#FAEEDA;color:#633806;border-color:#BA7517}
+.p-nha{background:#EEEDFE;color:#3C3489;border-color:#7F77DD}
+.p-viha{background:#E1F5EE;color:#085041;border-color:#1D9E75}
+.p-phc{background:#F1EFE8;color:#444441;border-color:#888780}
+.p-ext{background:#F1EFE8;color:#444441;border-color:#888780}
+.p-hl7{background:#FFF3E0;color:#633806;border-color:#EF9F27}
+.p-api{background:#F1EFE8;color:#444441;border-color:#888780}
+.p-paris{background:#EAF3DE;color:#27500A;border-color:#639922}
+.p-pacs{background:#E6F1FB;color:#0C447C;border-color:#185FA5}
+.canvas{overflow:auto;flex:1}
+svg{display:block}
+
+/* tooltip */
+#tt{position:fixed;display:none;background:var(--color-background-primary);border:0.5px solid var(--color-border-secondary);border-radius:8px;padding:10px 13px;font-size:12px;color:var(--color-text-primary);max-width:240px;box-shadow:0 2px 12px rgba(0,0,0,.10);z-index:9999;pointer-events:none}
+#tt .tt-title{font-size:13px;font-weight:500;margin-bottom:4px;color:var(--color-text-primary)}
+#tt .tt-desc{color:var(--color-text-secondary);margin-bottom:5px;line-height:1.5}
+#tt .tt-conn{font-size:11px;color:var(--color-text-tertiary);margin-bottom:4px}
+#tt .tt-link{font-size:11px;color:#185FA5;text-decoration:underline;cursor:pointer}
+
+/* legend */
+.leg{display:flex;flex-wrap:wrap;gap:10px;padding:6px 14px;border-top:0.5px solid var(--color-border-tertiary);background:var(--color-background-secondary);flex-shrink:0}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--color-text-secondary)}
+.leg-line{width:26px;height:2px;flex-shrink:0}
+.leg-line.hl7{background:#EF9F27}
+.leg-line.api{background:repeating-linear-gradient(90deg,#888780 0,#888780 4px,transparent 4px,transparent 7px)}
+.leg-line.paris{background:repeating-linear-gradient(90deg,#1D9E75 0,#1D9E75 4px,transparent 4px,transparent 7px)}
+.leg-line.pacs{background:repeating-linear-gradient(90deg,#185FA5 0,#185FA5 4px,transparent 4px,transparent 7px)}
+.leg-sq{width:12px;height:12px;border-radius:3px;flex-shrink:0}
+</style>
+
+<div id="wrap">
+<div class="toolbar">
+  <span class="tlabel">Org</span>
+  <span class="pill p-phsa on" data-f="org" data-v="phsa">PHSA</span>
+  <span class="pill p-hlth on" data-f="org" data-v="hlth">HLTH / MOH</span>
+  <span class="pill p-fha  on" data-f="org" data-v="fha">FHA</span>
+  <span class="pill p-vch  on" data-f="org" data-v="vch">VCH</span>
+  <span class="pill p-iha  on" data-f="org" data-v="iha">IHA</span>
+  <span class="pill p-nha  on" data-f="org" data-v="nha">NHA</span>
+  <span class="pill p-viha on" data-f="org" data-v="viha">VIHA</span>
+  <span class="pill p-phc  on" data-f="org" data-v="phc">PHC</span>
+  <span class="pill p-ext  on" data-f="org" data-v="ext">External</span>
+  <div class="fsep"></div>
+  <span class="tlabel">Connection</span>
+  <span class="pill p-hl7  on" data-f="conn" data-v="hl7">● HL7 v2 push</span>
+  <span class="pill p-api  on" data-f="conn" data-v="api">-- API pull</span>
+  <span class="pill p-paris on" data-f="conn" data-v="paris">-- PARIS</span>
+  <span class="pill p-pacs  on" data-f="conn" data-v="pacs">-- PACS</span>
+</div>
+
+<div class="canvas">
+<svg id="sv" viewBox="0 0 1500 980" width="1500" height="980" xmlns="http://www.w3.org/2000/svg">
+<defs>
+  <marker id="mhl7" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#EF9F27" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="mapi" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#888780" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="mparis" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#1D9E75" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="mpacs" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="#185FA5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+</defs>
+
+<!-- ═══ BACKGROUND REGIONS ═══ -->
+<!-- PHSA region -->
+<rect x="390" y="10" width="640" height="720" rx="16" fill="#E6F1FB" fill-opacity=".13" stroke="#378ADD" stroke-width="1" stroke-dasharray="7 4" class="org-phsa" data-org="phsa"/>
+<text x="410" y="32" font-size="11" font-weight="500" fill="#185FA5" class="org-phsa" data-org="phsa">PHSA — CareConnect Platform</text>
+
+<!-- HLTH region -->
+<rect x="1080" y="10" width="200" height="620" rx="14" fill="#EAF3DE" fill-opacity=".18" stroke="#639922" stroke-width="1" stroke-dasharray="7 4" class="org-hlth" data-org="hlth"/>
+<text x="1100" y="32" font-size="11" font-weight="500" fill="#3B6D11" class="org-hlth" data-org="hlth">Ministry of Health (HLTH)</text>
+
+<!-- ═══ HA PLACEHOLDER BOXES (left) ═══ -->
+
+<!-- Helper: yellow DB cylinder via SVG ellipses -->
+<!-- FHA -->
+<g class="nd org-fha" data-org="fha" data-tt="fha-broker"
+   transform="translate(22,40)">
+  <rect width="148" height="82" rx="8" fill="#FAECE7" stroke="#D85A30" stroke-width="0.7"/>
+  <text x="74" y="18" text-anchor="middle" font-size="11" font-weight="500" fill="#993C1D">Fraser Health</text>
+  <text x="74" y="31" text-anchor="middle" font-size="9" fill="#D85A30">FHA Broker</text>
+  <!-- db icon yellow -->
+  <ellipse cx="30" cy="54" rx="13" ry="5" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <rect x="17" y="54" width="26" height="18" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <ellipse cx="30" cy="72" rx="13" ry="5" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <ellipse cx="30" cy="54" rx="13" ry="5" fill="#FAC775" stroke="#BA7517" stroke-width="0.5"/>
+  <text x="74" y="62" text-anchor="middle" font-size="8" fill="#993C1D">FHA Meditech</text>
+  <text x="74" y="73" text-anchor="middle" font-size="8" fill="#993C1D">FHA PARIS · PDIV PACS</text>
+</g>
+
+<!-- VCH -->
+<g class="nd org-vch" data-org="vch" data-tt="vch-broker"
+   transform="translate(22,140)">
+  <rect width="148" height="82" rx="8" fill="#FBEAF0" stroke="#D4537E" stroke-width="0.7"/>
+  <text x="74" y="18" text-anchor="middle" font-size="11" font-weight="500" fill="#993556">Vancouver Coastal</text>
+  <text x="74" y="31" text-anchor="middle" font-size="9" fill="#D4537E">VCH Broker</text>
+  <ellipse cx="30" cy="54" rx="13" ry="5" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <rect x="17" y="54" width="26" height="18" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <ellipse cx="30" cy="72" rx="13" ry="5" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <ellipse cx="30" cy="54" rx="13" ry="5" fill="#FAC775" stroke="#BA7517" stroke-width="0.5"/>
+  <text x="74" y="62" text-anchor="middle" font-size="8" fill="#993556">PARIS · Profile DB</text>
+  <text x="74" y="73" text-anchor="middle" font-size="8" fill="#993556">VCH PDIV PACS</text>
+</g>
+
+<!-- IHA -->
+<g class="nd org-iha" data-org="iha" data-tt="iha-broker"
+   transform="translate(22,240)">
+  <rect width="148" height="76" rx="8" fill="#FAEEDA" stroke="#BA7517" stroke-width="0.7"/>
+  <text x="74" y="18" text-anchor="middle" font-size="11" font-weight="500" fill="#633806">Interior Health</text>
+  <text x="74" y="31" text-anchor="middle" font-size="9" fill="#BA7517">IHA Broker</text>
+  <ellipse cx="30" cy="50" rx="13" ry="5" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <rect x="17" y="50" width="26" height="16" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <ellipse cx="30" cy="66" rx="13" ry="5" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <ellipse cx="30" cy="50" rx="13" ry="5" fill="#FAC775" stroke="#BA7517" stroke-width="0.5"/>
+  <text x="74" y="58" text-anchor="middle" font-size="8" fill="#633806">IHA Meditech</text>
+  <text x="74" y="69" text-anchor="middle" font-size="8" fill="#633806">IHA PDIV PACS</text>
+</g>
+
+<!-- NHA -->
+<g class="nd org-nha" data-org="nha" data-tt="nha-broker"
+   transform="translate(22,334)">
+  <rect width="148" height="76" rx="8" fill="#EEEDFE" stroke="#7F77DD" stroke-width="0.7"/>
+  <text x="74" y="18" text-anchor="middle" font-size="11" font-weight="500" fill="#3C3489">Northern Health</text>
+  <text x="74" y="31" text-anchor="middle" font-size="9" fill="#7F77DD">NHA Broker</text>
+  <ellipse cx="30" cy="50" rx="13" ry="5" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <rect x="17" y="50" width="26" height="16" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <ellipse cx="30" cy="66" rx="13" ry="5" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <ellipse cx="30" cy="50" rx="13" ry="5" fill="#FAC775" stroke="#BA7517" stroke-width="0.5"/>
+  <text x="74" y="58" text-anchor="middle" font-size="8" fill="#3C3489">NHA Cerner</text>
+  <text x="74" y="69" text-anchor="middle" font-size="8" fill="#3C3489">NHA PDIV PACS</text>
+</g>
+
+<!-- VIHA -->
+<g class="nd org-viha" data-org="viha" data-tt="viha-broker"
+   transform="translate(22,428)">
+  <rect width="148" height="76" rx="8" fill="#E1F5EE" stroke="#1D9E75" stroke-width="0.7"/>
+  <text x="74" y="18" text-anchor="middle" font-size="11" font-weight="500" fill="#085041">Island Health</text>
+  <text x="74" y="31" text-anchor="middle" font-size="9" fill="#1D9E75">VIHA Broker</text>
+  <ellipse cx="30" cy="50" rx="13" ry="5" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <rect x="17" y="50" width="26" height="16" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <ellipse cx="30" cy="66" rx="13" ry="5" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <ellipse cx="30" cy="50" rx="13" ry="5" fill="#FAC775" stroke="#BA7517" stroke-width="0.5"/>
+  <text x="74" y="58" text-anchor="middle" font-size="8" fill="#085041">VIHA Cerner</text>
+  <text x="74" y="69" text-anchor="middle" font-size="8" fill="#085041">VIHA PDIC PACS</text>
+</g>
+
+<!-- PHC -->
+<g class="nd org-phc" data-org="phc" data-tt="phc-placeholder"
+   transform="translate(22,522)">
+  <rect width="148" height="66" rx="8" fill="#F1EFE8" stroke="#888780" stroke-width="0.7"/>
+  <text x="74" y="18" text-anchor="middle" font-size="11" font-weight="500" fill="#444441">Providence Health</text>
+  <text x="74" y="31" text-anchor="middle" font-size="9" fill="#888780">PHC — coming later</text>
+  <text x="74" y="50" text-anchor="middle" font-size="20" fill="#B4B2A9">?</text>
+</g>
+
+<!-- ═══ LAB CONSOLIDATION BROKER ═══ -->
+<g class="nd org-phsa" data-org="phsa" data-tt="lcb" transform="translate(220,318)">
+  <rect width="158" height="64" rx="10" fill="#E6F1FB" stroke="#378ADD" stroke-width="1.2"/>
+  <!-- broker/server icon -->
+  <rect x="10" y="12" width="26" height="20" rx="3" fill="#378ADD" fill-opacity=".3" stroke="#185FA5" stroke-width="0.7"/>
+  <line x1="14" y1="18" x2="32" y2="18" stroke="#185FA5" stroke-width="0.8"/>
+  <line x1="14" y1="22" x2="28" y2="22" stroke="#185FA5" stroke-width="0.8"/>
+  <circle cx="32" cy="25" r="2" fill="#1D9E75"/>
+  <text x="85" y="26" text-anchor="middle" font-size="11" font-weight="500" fill="#0C447C">Lab Consolidation</text>
+  <text x="85" y="40" text-anchor="middle" font-size="11" font-weight="500" fill="#0C447C">Broker</text>
+  <text x="85" y="54" text-anchor="middle" font-size="9" fill="#185FA5">HL7 v2 aggregation · PHSA</text>
+</g>
+
+<!-- ═══ DATA INGESTION BROKER (inside PHSA) ═══ -->
+<g class="nd org-phsa" data-org="phsa" data-tt="dib" transform="translate(415,290)">
+  <rect width="148" height="54" rx="10" fill="#B5D4F4" fill-opacity=".45" stroke="#185FA5" stroke-width="1"/>
+  <rect x="10" y="10" width="22" height="16" rx="2" fill="#185FA5" fill-opacity=".3" stroke="#185FA5" stroke-width="0.6"/>
+  <line x1="13" y1="15" x2="29" y2="15" stroke="#185FA5" stroke-width="0.7"/>
+  <line x1="13" y1="19" x2="26" y2="19" stroke="#185FA5" stroke-width="0.7"/>
+  <circle cx="29" cy="22" r="1.5" fill="#1D9E75"/>
+  <text x="85" y="22" text-anchor="middle" font-size="10" font-weight="500" fill="#0C447C">Data Ingestion Broker</text>
+  <text x="85" y="35" text-anchor="middle" font-size="9" fill="#185FA5">ADT · Documents</text>
+  <text x="85" y="47" text-anchor="middle" font-size="8" fill="#185FA5">HL7 v2 inbound</text>
+</g>
+
+<!-- ═══ CARECONNECT CORE ═══ -->
+<!-- CDR container -->
+<g class="nd org-phsa" data-org="phsa" data-tt="cdr-container" transform="translate(570,240)">
+  <rect width="430" height="460" rx="14" fill="#85B7EB" fill-opacity=".12" stroke="#185FA5" stroke-width="0.8"/>
+  <text x="215" y="22" text-anchor="middle" font-size="10" font-weight="500" fill="#0C447C">CareConnect CDR</text>
+</g>
+
+<!-- UI -->
+<g class="nd org-phsa" data-org="phsa" data-tt="cc-ui" transform="translate(660,50)">
+  <rect width="160" height="44" rx="8" fill="#E6F1FB" stroke="#378ADD" stroke-width="0.9"/>
+  <!-- monitor icon -->
+  <rect x="8" y="8" width="22" height="16" rx="2" fill="none" stroke="#378ADD" stroke-width="1"/>
+  <line x1="15" y1="24" x2="22" y2="28" stroke="#378ADD" stroke-width="1"/>
+  <line x1="13" y1="28" x2="25" y2="28" stroke="#378ADD" stroke-width="1"/>
+  <text x="100" y="28" text-anchor="middle" font-size="12" font-weight="500" fill="#0C447C">CareConnect UI</text>
+</g>
+
+<!-- API -->
+<g class="nd org-phsa" data-org="phsa" data-tt="cc-api" transform="translate(660,114)">
+  <rect width="160" height="44" rx="8" fill="#E6F1FB" stroke="#378ADD" stroke-width="0.9"/>
+  <!-- API icon: <>/ -->
+  <text x="19" y="30" font-size="14" font-weight="500" fill="#378ADD">&lt;/&gt;</text>
+  <text x="100" y="28" text-anchor="middle" font-size="12" font-weight="500" fill="#0C447C">CareConnect API</text>
+</g>
+
+<!-- Microservices row -->
+<g class="nd org-phsa" data-org="phsa" data-tt="cc-ms" transform="translate(600,178)">
+  <rect width="300" height="44" rx="8" fill="#E6F1FB" stroke="#378ADD" stroke-width="0.9"/>
+  <!-- microservices: 3 small hexagons -->
+  <polygon points="18,14 24,10 30,14 30,22 24,26 18,22" fill="none" stroke="#378ADD" stroke-width="1"/>
+  <polygon points="34,14 40,10 46,14 46,22 40,26 34,22" fill="none" stroke="#378ADD" stroke-width="1"/>
+  <polygon points="50,14 56,10 62,14 62,22 56,26 50,22" fill="none" stroke="#378ADD" stroke-width="1"/>
+  <text x="185" y="28" text-anchor="middle" font-size="12" font-weight="500" fill="#0C447C">Microservices</text>
+</g>
+
+<!-- CDR data store -->
+<g class="nd org-phsa" data-org="phsa" data-tt="cdr-store" transform="translate(610,260)">
+  <rect width="220" height="160" rx="10" fill="#E6F1FB" fill-opacity=".7" stroke="#185FA5" stroke-width="0.7"/>
+  <!-- stacked DB cylinders (blue, CareConnect style) -->
+  <ellipse cx="30" cy="32" rx="16" ry="6" fill="#B5D4F4" stroke="#185FA5" stroke-width="0.6"/>
+  <rect x="14" y="32" width="32" height="22" fill="#B5D4F4" stroke="#185FA5" stroke-width="0.6"/>
+  <ellipse cx="30" cy="54" rx="16" ry="6" fill="#B5D4F4" stroke="#185FA5" stroke-width="0.6"/>
+  <ellipse cx="30" cy="32" rx="16" ry="6" fill="#85B7EB" stroke="#185FA5" stroke-width="0.6"/>
+  <text x="120" y="22" text-anchor="middle" font-size="10" font-weight="500" fill="#0C447C">CDR Data Store</text>
+  <text x="120" y="42" text-anchor="middle" font-size="9" fill="#185FA5">VCH Cerner (Docs, Enc)</text>
+  <text x="120" y="56" text-anchor="middle" font-size="9" fill="#185FA5">PHSA CAIS (Docs)</text>
+  <text x="120" y="70" text-anchor="middle" font-size="9" fill="#185FA5">NHA Cerner (Enc)</text>
+  <text x="120" y="84" text-anchor="middle" font-size="9" fill="#185FA5">IHA Meditech (Docs, Enc)</text>
+  <text x="120" y="98" text-anchor="middle" font-size="9" fill="#185FA5">FHA Meditech (Docs)</text>
+  <text x="120" y="112" text-anchor="middle" font-size="9" fill="#185FA5">VIHA Cerner (Docs, Enc)</text>
+  <text x="120" y="126" text-anchor="middle" font-size="9" fill="#185FA5">PHC SoftMed (Docs)</text>
+  <text x="120" y="140" text-anchor="middle" font-size="9" fill="#185FA5">CBT Cerner (Labs, Alerts)</text>
+  <text x="120" y="154" text-anchor="middle" font-size="9" fill="#185FA5">+ more sources</text>
+</g>
+
+<!-- Primary PACS -->
+<g class="nd org-phsa" data-org="phsa" data-tt="primary-pacs" transform="translate(845,310)">
+  <rect width="130" height="58" rx="8" fill="#E6F1FB" stroke="#185FA5" stroke-width="0.8"/>
+  <!-- imaging icon -->
+  <rect x="8" y="10" width="22" height="18" rx="2" fill="none" stroke="#185FA5" stroke-width="0.8"/>
+  <circle cx="19" cy="19" r="5" fill="none" stroke="#185FA5" stroke-width="0.8"/>
+  <text x="75" y="26" text-anchor="middle" font-size="10" font-weight="500" fill="#0C447C">Primary PACS</text>
+  <text x="75" y="40" text-anchor="middle" font-size="8" fill="#185FA5">PHSA imaging store</text>
+  <text x="75" y="52" text-anchor="middle" font-size="8" fill="#185FA5">internal API pull</text>
+</g>
+
+<!-- HealthGateway API -->
+<g class="nd org-phsa" data-org="phsa" data-tt="hgw" transform="translate(845,390)">
+  <rect width="130" height="58" rx="8" fill="#E6F1FB" stroke="#378ADD" stroke-width="0.8"/>
+  <text x="8" y="26" font-size="13" fill="#378ADD">&lt;/&gt;</text>
+  <text x="75" y="22" text-anchor="middle" font-size="10" font-weight="500" fill="#0C447C">PHSA HealthGateway</text>
+  <text x="75" y="35" text-anchor="middle" font-size="8" fill="#185FA5">API (external consumers)</text>
+  <text x="75" y="48" text-anchor="middle" font-size="8" fill="#185FA5">Dashed inbound arrow</text>
+</g>
+
+<!-- CAIS source -->
+<g class="nd org-phsa" data-org="phsa" data-tt="cais" transform="translate(845,200)">
+  <rect width="130" height="58" rx="8" fill="#E6F1FB" stroke="#378ADD" stroke-width="0.7"/>
+  <ellipse cx="22" cy="28" rx="12" ry="5" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <rect x="10" y="28" width="24" height="16" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <ellipse cx="22" cy="44" rx="12" ry="5" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <ellipse cx="22" cy="28" rx="12" ry="5" fill="#FAC775" stroke="#BA7517" stroke-width="0.5"/>
+  <text x="80" y="26" text-anchor="middle" font-size="10" font-weight="500" fill="#0C447C">CAIS</text>
+  <text x="80" y="38" text-anchor="middle" font-size="8" fill="#185FA5">BC Cancer data</text>
+  <text x="80" y="50" text-anchor="middle" font-size="8" fill="#185FA5">M*Modal transcription</text>
+</g>
+
+<!-- PRISM-BC -->
+<g class="nd org-phsa" data-org="phsa" data-tt="prism" transform="translate(845,480)">
+  <rect width="130" height="52" rx="8" fill="#E6F1FB" stroke="#378ADD" stroke-width="0.7"/>
+  <ellipse cx="22" cy="22" rx="12" ry="5" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <rect x="10" y="22" width="24" height="14" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <ellipse cx="22" cy="36" rx="12" ry="5" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <ellipse cx="22" cy="22" rx="12" ry="5" fill="#FAC775" stroke="#BA7517" stroke-width="0.5"/>
+  <text x="80" y="22" text-anchor="middle" font-size="10" font-weight="500" fill="#0C447C">PRISM-BC</text>
+  <text x="80" y="34" text-anchor="middle" font-size="8" fill="#185FA5">Cath/structural data</text>
+  <text x="80" y="46" text-anchor="middle" font-size="8" fill="#185FA5">PHSA cardiac</text>
+</g>
+
+<!-- ═══ HLTH NODES ═══ -->
+<!-- HAIL -->
+<g class="nd org-hlth" data-org="hlth" data-tt="hail" transform="translate(1100,48)">
+  <rect width="148" height="56" rx="8" fill="#EAF3DE" stroke="#639922" stroke-width="0.8"/>
+  <ellipse cx="22" cy="24" rx="12" ry="5" fill="#97C459" stroke="#3B6D11" stroke-width="0.5"/>
+  <rect x="10" y="24" width="24" height="14" fill="#97C459" stroke="#3B6D11" stroke-width="0.5"/>
+  <ellipse cx="22" cy="38" rx="12" ry="5" fill="#97C459" stroke="#3B6D11" stroke-width="0.5"/>
+  <ellipse cx="22" cy="24" rx="12" ry="5" fill="#C0DD97" stroke="#3B6D11" stroke-width="0.5"/>
+  <text x="84" y="24" text-anchor="middle" font-size="11" font-weight="500" fill="#27500A">HAIL</text>
+  <text x="84" y="37" text-anchor="middle" font-size="8" fill="#3B6D11">Health Analytics</text>
+  <text x="84" y="48" text-anchor="middle" font-size="8" fill="#3B6D11">&amp; Insight Layer</text>
+</g>
+
+<!-- EMPI -->
+<g class="nd org-hlth" data-org="hlth" data-tt="empi" transform="translate(1100,130)">
+  <rect width="148" height="56" rx="8" fill="#EAF3DE" stroke="#639922" stroke-width="0.8"/>
+  <ellipse cx="22" cy="24" rx="12" ry="5" fill="#97C459" stroke="#3B6D11" stroke-width="0.5"/>
+  <rect x="10" y="24" width="24" height="14" fill="#97C459" stroke="#3B6D11" stroke-width="0.5"/>
+  <ellipse cx="22" cy="38" rx="12" ry="5" fill="#97C459" stroke="#3B6D11" stroke-width="0.5"/>
+  <ellipse cx="22" cy="24" rx="12" ry="5" fill="#C0DD97" stroke="#3B6D11" stroke-width="0.5"/>
+  <text x="84" y="24" text-anchor="middle" font-size="11" font-weight="500" fill="#27500A">EMPI</text>
+  <text x="84" y="37" text-anchor="middle" font-size="8" fill="#3B6D11">Enterprise Master</text>
+  <text x="84" y="48" text-anchor="middle" font-size="8" fill="#3B6D11">Patient Index</text>
+</g>
+
+<!-- PharmaNet -->
+<g class="nd org-hlth" data-org="hlth" data-tt="pharmanet" transform="translate(1100,212)">
+  <rect width="148" height="56" rx="8" fill="#EAF3DE" stroke="#639922" stroke-width="0.8"/>
+  <ellipse cx="22" cy="24" rx="12" ry="5" fill="#97C459" stroke="#3B6D11" stroke-width="0.5"/>
+  <rect x="10" y="24" width="24" height="14" fill="#97C459" stroke="#3B6D11" stroke-width="0.5"/>
+  <ellipse cx="22" cy="38" rx="12" ry="5" fill="#97C459" stroke="#3B6D11" stroke-width="0.5"/>
+  <ellipse cx="22" cy="24" rx="12" ry="5" fill="#C0DD97" stroke="#3B6D11" stroke-width="0.5"/>
+  <text x="84" y="24" text-anchor="middle" font-size="11" font-weight="500" fill="#27500A">PharmaNet</text>
+  <text x="84" y="37" text-anchor="middle" font-size="8" fill="#3B6D11">Medication &amp; pharmacy</text>
+  <text x="84" y="48" text-anchor="middle" font-size="8" fill="#3B6D11">records · HLTH</text>
+</g>
+
+<!-- Panorama -->
+<g class="nd org-hlth" data-org="hlth" data-tt="panorama" transform="translate(1100,294)">
+  <rect width="148" height="56" rx="8" fill="#EAF3DE" stroke="#639922" stroke-width="0.8"/>
+  <ellipse cx="22" cy="24" rx="12" ry="5" fill="#97C459" stroke="#3B6D11" stroke-width="0.5"/>
+  <rect x="10" y="24" width="24" height="14" fill="#97C459" stroke="#3B6D11" stroke-width="0.5"/>
+  <ellipse cx="22" cy="38" rx="12" ry="5" fill="#97C459" stroke="#3B6D11" stroke-width="0.5"/>
+  <ellipse cx="22" cy="24" rx="12" ry="5" fill="#C0DD97" stroke="#3B6D11" stroke-width="0.5"/>
+  <text x="84" y="24" text-anchor="middle" font-size="11" font-weight="500" fill="#27500A">Panorama</text>
+  <text x="84" y="37" text-anchor="middle" font-size="8" fill="#3B6D11">Immunization &amp;</text>
+  <text x="84" y="48" text-anchor="middle" font-size="8" fill="#3B6D11">public health</text>
+</g>
+
+<!-- ═══ CONNECTIONS ═══ -->
+
+<!-- HL7: HA brokers → Lab Consolidation Broker (gentle arcs, orange solid) -->
+<path class="cn hl7 org-fha" data-org="fha" data-conn="hl7" data-tt="conn-fha-lcb"
+  fill="none" stroke="#EF9F27" stroke-width="1.8" marker-end="url(#mhl7)"
+  d="M170,81 C200,81 210,350 220,350"/>
+<path class="cn hl7 org-vch" data-org="vch" data-conn="hl7" data-tt="conn-vch-lcb"
+  fill="none" stroke="#EF9F27" stroke-width="1.8" marker-end="url(#mhl7)"
+  d="M170,181 C202,181 212,348 220,348"/>
+<path class="cn hl7 org-iha" data-org="iha" data-conn="hl7" data-tt="conn-iha-lcb"
+  fill="none" stroke="#EF9F27" stroke-width="1.8" marker-end="url(#mhl7)"
+  d="M170,278 C202,278 214,344 220,344"/>
+<path class="cn hl7 org-nha" data-org="nha" data-conn="hl7" data-tt="conn-nha-lcb"
+  fill="none" stroke="#EF9F27" stroke-width="1.8" marker-end="url(#mhl7)"
+  d="M170,372 C202,372 214,356 220,354"/>
+<path class="cn hl7 org-viha" data-org="viha" data-conn="hl7" data-tt="conn-viha-lcb"
+  fill="none" stroke="#EF9F27" stroke-width="1.8" marker-end="url(#mhl7)"
+  d="M170,466 C205,466 212,370 220,362"/>
+
+<!-- LCB → Data Ingestion Broker (orange solid arc) -->
+<path class="cn hl7 org-phsa" data-org="phsa" data-conn="hl7" data-tt="conn-lcb-dib"
+  fill="none" stroke="#EF9F27" stroke-width="1.8" marker-end="url(#mhl7)"
+  d="M378,340 C400,340 408,322 415,322"/>
+
+<!-- Data Ingestion Broker → CDR (orange arc) -->
+<path class="cn hl7 org-phsa" data-org="phsa" data-conn="hl7" data-tt="conn-dib-cdr"
+  fill="none" stroke="#EF9F27" stroke-width="1.8" marker-end="url(#mhl7)"
+  d="M563,308 C600,305 625,300 635,290"/><!-- enters CDR store area -->
+
+<!-- LCB → HAIL (orange solid, one arrow out) -->
+<path class="cn hl7 org-hlth" data-org="hlth" data-conn="hl7" data-tt="conn-lcb-hail"
+  fill="none" stroke="#EF9F27" stroke-width="1.8" marker-end="url(#mhl7)"
+  d="M378,328 C700,200 950,100 1100,76"/>
+
+<!-- UI → API (internal, subtle blue) -->
+<path class="cn api org-phsa" data-org="phsa" data-conn="api"
+  fill="none" stroke="#378ADD" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#mapi)"
+  d="M740,94 C740,104 740,108 740,114"/>
+
+<!-- API → Microservices (internal) -->
+<path class="cn api org-phsa" data-org="phsa" data-conn="api"
+  fill="none" stroke="#378ADD" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#mapi)"
+  d="M740,158 C740,166 740,170 750,178"/>
+
+<!-- Microservices → CDR (internal) -->
+<path class="cn api org-phsa" data-org="phsa" data-conn="api"
+  fill="none" stroke="#378ADD" stroke-width="1" stroke-dasharray="4 3" marker-end="url(#mapi)"
+  d="M750,222 C720,240 700,255 700,260"/>
+
+<!-- Microservices → Primary PACS (blue dotted arc, internal) -->
+<path class="cn pacs org-phsa" data-org="phsa" data-conn="pacs" data-tt="conn-ms-pacs"
+  fill="none" stroke="#185FA5" stroke-width="1.2" stroke-dasharray="5 3" marker-end="url(#mpacs)"
+  d="M900,200 C900,240 900,295 910,310"/>
+
+<!-- Microservices → EMPI (black dotted) -->
+<path class="cn api org-hlth" data-org="hlth" data-conn="api" data-tt="conn-ms-empi"
+  fill="none" stroke="#888780" stroke-width="1.1" stroke-dasharray="5 3" marker-end="url(#mapi)"
+  d="M900,196 C1000,180 1050,165 1100,158"/>
+
+<!-- Microservices → HAIL (black dotted) -->
+<path class="cn api org-hlth" data-org="hlth" data-conn="api" data-tt="conn-ms-hail"
+  fill="none" stroke="#888780" stroke-width="1.1" stroke-dasharray="5 3" marker-end="url(#mapi)"
+  d="M900,192 C990,140 1060,100 1100,80"/>
+
+<!-- Microservices → PharmaNet (black dotted) -->
+<path class="cn api org-hlth" data-org="hlth" data-conn="api" data-tt="conn-ms-pharma"
+  fill="none" stroke="#888780" stroke-width="1.1" stroke-dasharray="5 3" marker-end="url(#mapi)"
+  d="M900,204 C1000,218 1060,228 1100,240"/>
+
+<!-- Microservices → Panorama (black dotted) -->
+<path class="cn api org-hlth" data-org="hlth" data-conn="api" data-tt="conn-ms-panorama"
+  fill="none" stroke="#888780" stroke-width="1.1" stroke-dasharray="5 3" marker-end="url(#mapi)"
+  d="M900,208 C1000,260 1060,300 1100,322"/>
+
+<!-- Microservices → FHA PARIS (black dotted, back left) -->
+<path class="cn api org-fha" data-org="fha" data-conn="api" data-tt="conn-ms-fha-paris"
+  fill="none" stroke="#888780" stroke-width="1.1" stroke-dasharray="5 3" marker-end="url(#mapi)"
+  d="M600,200 C500,180 350,150 170,110"/>
+
+<!-- Microservices → FHA PDIV PACS (black dotted) -->
+<path class="cn api org-fha" data-org="fha" data-conn="api" data-tt="conn-ms-fha-pacs"
+  fill="none" stroke="#888780" stroke-width="1.1" stroke-dasharray="5 3" marker-end="url(#mapi)"
+  d="M600,204 C500,184 350,160 170,118"/>
+
+<!-- Microservices → VCH PDIV PACS (black dotted) -->
+<path class="cn api org-vch" data-org="vch" data-conn="api" data-tt="conn-ms-vch-pacs"
+  fill="none" stroke="#888780" stroke-width="1.1" stroke-dasharray="5 3" marker-end="url(#mapi)"
+  d="M600,208 C490,200 350,200 170,200"/>
+
+<!-- Microservices → VCH Profile DB (black dotted) -->
+<path class="cn api org-vch" data-org="vch" data-conn="api" data-tt="conn-ms-vch-profile"
+  fill="none" stroke="#888780" stroke-width="1.1" stroke-dasharray="5 3" marker-end="url(#mapi)"
+  d="M600,212 C490,205 350,205 170,210"/>
+
+<!-- Microservices → IHA PDIV PACS (black dotted) -->
+<path class="cn api org-iha" data-org="iha" data-conn="api" data-tt="conn-ms-iha-pacs"
+  fill="none" stroke="#888780" stroke-width="1.1" stroke-dasharray="5 3" marker-end="url(#mapi)"
+  d="M600,216 C490,240 350,265 170,278"/>
+
+<!-- Microservices → NHA PDIV PACS (black dotted) -->
+<path class="cn api org-nha" data-org="nha" data-conn="api" data-tt="conn-ms-nha-pacs"
+  fill="none" stroke="#888780" stroke-width="1.1" stroke-dasharray="5 3" marker-end="url(#mapi)"
+  d="M600,220 C490,280 350,340 170,372"/>
+
+<!-- Microservices → VIHA PDIC PACS (black dotted) -->
+<path class="cn api org-viha" data-org="viha" data-conn="api" data-tt="conn-ms-viha-pacs"
+  fill="none" stroke="#888780" stroke-width="1.1" stroke-dasharray="5 3" marker-end="url(#mapi)"
+  d="M600,224 C490,330 350,420 170,466"/>
+
+<!-- VCH PARIS green dotted (agreement) -->
+<path class="cn paris org-vch" data-org="vch" data-conn="paris" data-tt="conn-ms-vch-paris"
+  fill="none" stroke="#1D9E75" stroke-width="1.3" stroke-dasharray="5 3" marker-end="url(#mparis)"
+  d="M600,188 C490,170 350,165 170,170"/>
+
+<!-- Agreement badge -->
+<rect x="330" y="155" width="68" height="16" rx="3" fill="#EAF3DE" stroke="#639922" stroke-width="0.5" class="org-vch" data-org="vch"/>
+<text x="364" y="166" text-anchor="middle" font-size="8" fill="#27500A" class="org-vch" data-org="vch">Agreement ✓</text>
+
+<!-- ═══ FLOATING PANELS (bottom) ═══ -->
+
+<!-- LifeLabs -->
+<g class="nd org-ext" data-org="ext" data-tt="lifelabs" transform="translate(22,750)">
+  <rect width="148" height="76" rx="8" fill="#F1EFE8" stroke="#888780" stroke-width="0.7"/>
+  <ellipse cx="26" cy="36" rx="13" ry="5" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <rect x="13" y="36" width="26" height="16" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <ellipse cx="26" cy="52" rx="13" ry="5" fill="#EF9F27" stroke="#BA7517" stroke-width="0.5"/>
+  <ellipse cx="26" cy="36" rx="13" ry="5" fill="#FAC775" stroke="#BA7517" stroke-width="0.5"/>
+  <text x="90" y="18" text-anchor="middle" font-size="11" font-weight="500" fill="#444441">LifeLabs</text>
+  <text x="90" y="31" text-anchor="middle" font-size="9" fill="#888780">External lab entity</text>
+  <text x="90" y="56" text-anchor="middle" font-size="8" fill="#888780">BC retail storefronts</text>
+  <text x="90" y="68" text-anchor="middle" font-size="8" fill="#888780">HL7 v2 → Lab Consol. Broker</text>
+</g>
+
+<!-- LifeLabs → LCB arc -->
+<path class="cn hl7 org-ext" data-org="ext" data-conn="hl7" data-tt="conn-lifelabs-lcb"
+  fill="none" stroke="#EF9F27" stroke-width="1.8" stroke-dasharray="6 3" marker-end="url(#mhl7)"
+  d="M170,786 C210,786 215,400 220,374"/>
+
+<!-- Pharmacies -->
+<g class="nd org-ext" data-org="ext" data-tt="pharmacies" transform="translate(200,750)">
+  <rect width="148" height="76" rx="8" fill="#F1EFE8" stroke="#888780" stroke-width="0.7"/>
+  <!-- pharmacy cross icon -->
+  <rect x="18" y="30" width="18" height="6" rx="1" fill="#888780"/>
+  <rect x="24" y="24" width="6" height="18" rx="1" fill="#888780"/>
+  <text x="90" y="18" text-anchor="middle" font-size="11" font-weight="500" fill="#444441">Pharmacies</text>
+  <text x="90" y="31" text-anchor="middle" font-size="9" fill="#888780">Community pharmacies</text>
+  <text x="90" y="50" text-anchor="middle" font-size="8" fill="#888780">PharmaNet connected</text>
+  <text x="90" y="62" text-anchor="middle" font-size="8" fill="#888780">Dispense data → HLTH</text>
+  <text x="90" y="74" text-anchor="middle" font-size="8" fill="#888780">API pull via microservices</text>
+</g>
+
+<!-- DATA LOCKED panel -->
+<g class="nd org-ext" data-org="ext" data-tt="locked" transform="translate(400,750)">
+  <rect width="200" height="100" rx="10" fill="#F1EFE8" stroke="#888780" stroke-width="1" stroke-dasharray="5 3"/>
+  <!-- lock icon -->
+  <rect x="14" y="52" width="22" height="18" rx="3" fill="none" stroke="#888780" stroke-width="1.2"/>
+  <path d="M18 52 C18 44 32 44 32 52" fill="none" stroke="#888780" stroke-width="1.2"/>
+  <circle cx="25" cy="62" r="2.5" fill="#888780"/>
+  <text x="115" y="24" text-anchor="middle" font-size="11" font-weight="500" fill="#444441">Data Locked / Unknown</text>
+  <text x="115" y="40" text-anchor="middle" font-size="9" fill="#888780">Systems known to exist but</text>
+  <text x="115" y="54" text-anchor="middle" font-size="9" fill="#888780">details not yet confirmed.</text>
+  <text x="115" y="70" text-anchor="middle" font-size="9" fill="#888780">e.g. private dictation systems,</text>
+  <text x="115" y="84" text-anchor="middle" font-size="9" fill="#888780">redacted/privacy-blocked records</text>
+</g>
+
+<!-- UNKNOWN ORGS panel -->
+<g class="nd org-ext" data-org="ext" data-tt="unknown-orgs" transform="translate(630,750)">
+  <rect width="220" height="100" rx="10" fill="#F1EFE8" stroke="#888780" stroke-width="1" stroke-dasharray="5 3"/>
+  <!-- question mark -->
+  <text x="28" y="70" text-anchor="middle" font-size="36" fill="#D3D1C7">?</text>
+  <text x="130" y="24" text-anchor="middle" font-size="11" font-weight="500" fill="#444441">Other Health Orgs</text>
+  <text x="130" y="40" text-anchor="middle" font-size="9" fill="#888780">Non-HA organizations</text>
+  <text x="130" y="54" text-anchor="middle" font-size="9" fill="#888780">known to interact with the</text>
+  <text x="130" y="68" text-anchor="middle" font-size="9" fill="#888780">BC health data ecosystem</text>
+  <text x="130" y="82" text-anchor="middle" font-size="9" fill="#888780">but not yet mapped</text>
+</g>
+
+<!-- "Floating panels" label -->
+<text x="22" y="744" font-size="10" fill="#888780">External entities &amp; unknowns</text>
+<line x1="22" y1="746" x2="870" y2="746" stroke="#D3D1C7" stroke-width="0.5"/>
+
+</svg>
+</div>
+
+<div class="leg">
+  <div class="leg-item"><div class="leg-line hl7"></div>HL7 v2 auto-push (solid orange)</div>
+  <div class="leg-item"><div class="leg-line api"></div>API pull / internal (gray dashed)</div>
+  <div class="leg-item"><div class="leg-line paris"></div>PARIS pull — agreement gated (green dashed)</div>
+  <div class="leg-item"><div class="leg-line pacs"></div>PACS pull (blue dashed)</div>
+  <div class="leg-item"><div class="leg-sq" style="background:#FAC775;border:0.5px solid #BA7517"></div>HA source DB (yellow cylinder)</div>
+  <div class="leg-item"><div class="leg-sq" style="background:#85B7EB;border:0.5px solid #185FA5"></div>CareConnect CDR (blue)</div>
+  <div class="leg-item"><div class="leg-sq" style="background:#F1EFE8;border:0.5px dashed #888780"></div>Unknown / locked</div>
+</div>
+</div>
+
+<div id="tt"><div class="tt-title" id="tt-title"></div><div class="tt-desc" id="tt-desc"></div><div class="tt-conn" id="tt-conn"></div><a class="tt-link" id="tt-link" target="_blank"></a></div>
+
+<script>
+const tips = {
+  'fha-broker':    {title:'Fraser Health (FHA) Broker',     desc:'Aggregates ADT and document data from FHA Meditech across 20+ FHA facilities. Also contains FHA PARIS community data and FHA PDIV PACS imaging.', conn:'→ Lab Consolidation Broker (HL7 v2 push) · ← Microservices (API pull for PARIS, PACS)', link:'https://health.careconnect.ca/html/help/DocumentsViewDetails.htm#FHA', linkText:'FHA Documents →'},
+  'vch-broker':    {title:'Vancouver Coastal Health (VCH) Broker', desc:'Aggregates data from VCH facilities. Source systems include VPP Cerner, SoftMed, M*Modal, Syngo, MUSE, iClinic. Contains PARIS community DB and Profile EMR.', conn:'→ Lab Consolidation Broker (HL7 v2) · ← Microservices (API pull PARIS, Profile DB, PDIV PACS)', link:'https://health.careconnect.ca/html/help/DocumentsViewDetails.htm#VCH', linkText:'VCH Documents →'},
+  'iha-broker':    {title:'Interior Health (IHA) Broker',   desc:'IHA Meditech documents across 70+ IHA facilities available from March 2017. Also IHA iClinic (May 2025). PDIV PACS for imaging.', conn:'→ Lab Consolidation Broker (HL7 v2) · ← Microservices (API pull PDIV PACS)', link:'https://health.careconnect.ca/html/help/DocumentsViewDetails.htm#IHA', linkText:'IHA Documents →'},
+  'nha-broker':    {title:'Northern Health (NHA) Broker',   desc:'NHA Cerner documents from 28+ NHA facilities, available from June 2018. PDIV PACS for imaging.', conn:'→ Lab Consolidation Broker (HL7 v2) · ← Microservices (API pull PDIV PACS)', link:'https://health.careconnect.ca/html/help/DocumentsViewDetails.htm#NHA', linkText:'NHA Documents →'},
+  'viha-broker':   {title:'Island Health (VIHA) Broker',   desc:'VIHA Cerner documents from 100+ VIHA facilities, available from April 2020. PDIC PACS for imaging.', conn:'→ Lab Consolidation Broker (HL7 v2) · ← Microservices (API pull PDIC PACS)', link:'https://health.careconnect.ca/html/help/DocumentsViewDetails.htm#IH', linkText:'VIHA Documents →'},
+  'phc-placeholder':{title:'Providence Health Care (PHC)',  desc:'PHC data integration to be mapped in a future phase. Source systems include PHC PCIS, SoftMed, VPP Cerner.', conn:'Pending', link:'', linkText:''},
+  'lcb':           {title:'Lab Consolidation Broker',       desc:'Aggregates lab result data via HL7 v2 auto-push from all 5 HA brokers plus LifeLabs retail. Outputs a single consolidated lab feed into HAIL (Ministry of Health).', conn:'← FHA, VCH, IHA, NHA, VIHA, LifeLabs (HL7 v2) · → HAIL (HL7 v2)', link:'', linkText:''},
+  'dib':           {title:'Data Ingestion Broker',          desc:'Internal PHSA broker that receives ADT and document data from HA systems via HL7 v2 and routes it into the CareConnect CDR.', conn:'← Lab Consolidation Broker · → CareConnect CDR', link:'', linkText:''},
+  'cc-ui':         {title:'CareConnect UI',                 desc:'Web-based and mobile clinician-facing interface. Presents patient summary, encounters, labs, documents, community docs, imaging, medications, alerts.', conn:'↔ CareConnect API', link:'https://health.careconnect.ca', linkText:'CareConnect Help →'},
+  'cc-api':        {title:'CareConnect API',                desc:'RESTful API layer. Consumed by CareConnect UI, external API consumers via HealthGateway, and third-party integrations under agreement.', conn:'↔ Microservices · ← CareConnect UI', link:'', linkText:''},
+  'cc-ms':         {title:'CareConnect Microservices',      desc:'Service mesh handling data retrieval, authentication, and routing. Pulls data via API from external PACS, PARIS, PharmaNet, EMPI, Panorama, and internal CDR.', conn:'← API · → CDR, Primary PACS, HA PACS systems, HLTH databases', link:'', linkText:''},
+  'cdr-store':     {title:'CareConnect CDR Data Store',     desc:'Clinical Data Repository storing structured and document data ingested from all HA source systems. Sources include VCH Cerner, PHSA CAIS, IHA Meditech, FHA Meditech, VIHA Cerner, NHA Cerner, PHC SoftMed.', conn:'← Data Ingestion Broker (HL7 v2) · ← Microservices (internal)', link:'https://health.careconnect.ca/html/help/DocumentsViewDetails.htm', linkText:'All source systems →'},
+  'primary-pacs':  {title:'Primary PACS (PHSA)',            desc:'PHSA internal imaging archive. CareConnect microservices pull imaging data via internal API (blue dotted line).', conn:'← Microservices (internal API/PACS pull)', link:'', linkText:''},
+  'hgw':           {title:'PHSA HealthGateway API',         desc:'External-facing API allowing authorized consumer applications to pull CareConnect data. Access governed by agreements.', conn:'← External consumers (API pull) · ↔ CareConnect API', link:'', linkText:''},
+  'cais':          {title:'CAIS — BC Cancer Agency Info System', desc:'BC Cancer source system. Documents available in CareConnect from Sept 2014 (some from Jan 2009). Includes oncology consults, progress notes, RT completions. Transcribed via M*Modal.', conn:'→ CareConnect CDR (HL7 v2 push)', link:'https://health.careconnect.ca/html/help/DocumentsViewDetails.htm#CAIS', linkText:'CAIS document types →'},
+  'prism':         {title:'PRISM-BC',                       desc:'Cardiac catheterization and structural heart procedure data. Available from July 2023 across multiple sites including KGH, RJH, LGH, NRG, UHNBC, ARH.', conn:'→ CareConnect CDR (HL7 v2 push)', link:'https://health.careconnect.ca/html/help/DocumentsViewDetails.htm#PRISM-BC', linkText:'PRISM-BC types →'},
+  'hail':          {title:'HAIL — Health Analytics & Insight Layer', desc:'Ministry of Health analytics platform. Receives consolidated lab data from the Lab Consolidation Broker. API pull by CareConnect microservices.', conn:'← Lab Consolidation Broker (HL7 v2) · ← Microservices (API pull)', link:'', linkText:''},
+  'empi':          {title:'EMPI — Enterprise Master Patient Index', desc:'Provincial patient identity registry. CareConnect microservices query EMPI via API pull for patient matching across HAs.', conn:'← Microservices (API pull)', link:'', linkText:''},
+  'pharmanet':     {title:'PharmaNet',                      desc:'BC provincial pharmacy and medication dispensing database managed by HLTH. CareConnect microservices pull medication data via API.', conn:'← Microservices (API pull) · ← Community pharmacies (dispense)', link:'', linkText:''},
+  'panorama':      {title:'Panorama',                       desc:'Provincial public health and immunization system. CareConnect microservices pull immunization and public health data via API pull.', conn:'← Microservices (API pull)', link:'', linkText:''},
+  'lifelabs':      {title:'LifeLabs BC',                    desc:'Private laboratory company operating BC retail storefronts. Sends lab results via HL7 v2 auto-push to Lab Consolidation Broker. Separate external entity, not a health authority.', conn:'→ Lab Consolidation Broker (HL7 v2 push)', link:'', linkText:''},
+  'pharmacies':    {title:'Community Pharmacies',           desc:'BC community and retail pharmacies. Dispense data feeds into PharmaNet (HLTH). CareConnect accesses medication records via PharmaNet API pull.', conn:'→ PharmaNet (HLTH) · ← CareConnect via PharmaNet API', link:'', linkText:''},
+  'locked':        {title:'Data Locked / Unknown Systems',  desc:'Systems confirmed to exist but with restricted or unavailable detail. Includes private dictation services, privacy-blocked records (e.g. PARIS enhanced security), psychiatric/sexual assault/abortion reports excluded from CareConnect by policy.', conn:'Not mapped', link:'https://health.careconnect.ca/html/help/DocumentsViewDetails.htm', linkText:'Exclusions reference →'},
+  'unknown-orgs':  {title:'Other Health Organizations',     desc:'Non-HA organizations known to interact with the BC health data ecosystem. Includes private clinics, First Nations health bodies, federal facilities. Not yet fully mapped.', conn:'To be determined', link:'', linkText:''},
+  'cdr-container': {title:'CareConnect CDR Container',      desc:'The entire CareConnect platform boundary within PHSA. Encompasses the UI, API, microservices, and CDR data store.', conn:'See individual components', link:'', linkText:''},
+  'conn-fha-lcb':  {title:'FHA → Lab Consolidation Broker', desc:'Solid orange arrow = HL7 v2 automatic data push. Fraser Health lab results pushed continuously to the Lab Consolidation Broker.', conn:'Protocol: HL7 v2 · Type: auto-push · Direction: FHA → LCB', link:'', linkText:''},
+  'conn-vch-lcb':  {title:'VCH → Lab Consolidation Broker', desc:'HL7 v2 auto-push. Vancouver Coastal Health lab results.', conn:'Protocol: HL7 v2 · Type: auto-push', link:'', linkText:''},
+  'conn-iha-lcb':  {title:'IHA → Lab Consolidation Broker', desc:'HL7 v2 auto-push. Interior Health lab results.', conn:'Protocol: HL7 v2 · Type: auto-push', link:'', linkText:''},
+  'conn-nha-lcb':  {title:'NHA → Lab Consolidation Broker', desc:'HL7 v2 auto-push. Northern Health lab results.', conn:'Protocol: HL7 v2 · Type: auto-push', link:'', linkText:''},
+  'conn-viha-lcb': {title:'VIHA → Lab Consolidation Broker', desc:'HL7 v2 auto-push. Island Health lab results.', conn:'Protocol: HL7 v2 · Type: auto-push', link:'', linkText:''},
+  'conn-lcb-hail': {title:'Lab Consolidation Broker → HAIL', desc:'Single consolidated HL7 v2 push from LCB to Ministry of Health HAIL analytics platform. This is the one outgoing solid orange arrow from LCB.', conn:'Protocol: HL7 v2 · Type: auto-push · Direction: LCB → HAIL (HLTH)', link:'', linkText:''},
+  'conn-lcb-dib':  {title:'LCB → Data Ingestion Broker',    desc:'Orange solid arrow routing aggregated data from Lab Consolidation Broker into the CareConnect Data Ingestion Broker.', conn:'Protocol: HL7 v2 · Type: auto-push', link:'', linkText:''},
+  'conn-ms-pacs':  {title:'Microservices → Primary PACS',   desc:'Blue dashed arrow = internal API/PACS pull. CareConnect microservices pull imaging from PHSA Primary PACS.', conn:'Protocol: API · Type: pull (internal) · Direction: Microservices → Primary PACS', link:'', linkText:''},
+  'conn-ms-empi':  {title:'Microservices → EMPI',           desc:'Black dashed arrow = API pull request. CareConnect queries EMPI for patient identity matching.', conn:'Protocol: REST API · Type: pull', link:'', linkText:''},
+  'conn-ms-hail':  {title:'Microservices → HAIL',           desc:'Black dashed arrow = API pull. CareConnect accesses HAIL analytics data.', conn:'Protocol: REST API · Type: pull', link:'', linkText:''},
+  'conn-ms-pharma':{title:'Microservices → PharmaNet',      desc:'Black dashed arrow = API pull. CareConnect pulls medication dispensing records from PharmaNet for the Medications screen.', conn:'Protocol: REST API · Type: pull', link:'', linkText:''},
+  'conn-ms-panorama':{title:'Microservices → Panorama',     desc:'Black dashed arrow = API pull. CareConnect pulls immunization records from Panorama for the Immunizations screen.', conn:'Protocol: REST API · Type: pull', link:'', linkText:''},
+  'conn-ms-fha-paris':{title:'Microservices → FHA PARIS',   desc:'Black dashed arrow = API pull. CareConnect pulls FHA community PARIS data.', conn:'Protocol: REST API · Type: pull', link:'', linkText:''},
+  'conn-ms-fha-pacs': {title:'Microservices → FHA PDIV PACS', desc:'Black dashed arrow = API pull. CareConnect pulls FHA imaging from PDIV PACS.', conn:'Protocol: API · Type: PACS pull', link:'', linkText:''},
+  'conn-ms-vch-pacs': {title:'Microservices → VCH PDIV PACS', desc:'Black dashed arrow = API pull. CareConnect pulls VCH imaging.', conn:'Protocol: API · Type: PACS pull', link:'', linkText:''},
+  'conn-ms-vch-profile':{title:'Microservices → VCH Profile DB', desc:'Black dashed arrow = API pull. CareConnect pulls VCH Profile EMR community data.', conn:'Protocol: REST API · Type: pull', link:'', linkText:''},
+  'conn-ms-iha-pacs': {title:'Microservices → IHA PDIV PACS', desc:'Black dashed arrow = API pull. CareConnect pulls IHA imaging from PDIV PACS.', conn:'Protocol: API · Type: PACS pull', link:'', linkText:''},
+  'conn-ms-nha-pacs': {title:'Microservices → NHA PDIV PACS', desc:'Black dashed arrow = API pull. CareConnect pulls NHA imaging.', conn:'Protocol: API · Type: PACS pull', link:'', linkText:''},
+  'conn-ms-viha-pacs':{title:'Microservices → VIHA PDIC PACS', desc:'Black dashed arrow = API pull. CareConnect pulls VIHA imaging from PDIC PACS.', conn:'Protocol: API · Type: PACS pull', link:'', linkText:''},
+  'conn-ms-vch-paris':{title:'Microservices → VCH PARIS',   desc:'Green dashed arrow = PARIS API pull, governed by a formal data sharing agreement between PHSA and VCH.', conn:'Protocol: REST API · Type: pull · Agreement: VCH–PHSA · Direction: Microservices → VCH PARIS DB', link:'', linkText:''},
+  'conn-lifelabs-lcb':{title:'LifeLabs → Lab Consolidation Broker', desc:'HL7 v2 auto-push from LifeLabs BC retail storefronts. Dashed orange = external entity, same protocol as HA brokers.', conn:'Protocol: HL7 v2 · Type: auto-push · Entity: external (non-HA)', link:'', linkText:''},
+};
+
+const tt = document.getElementById('tt');
+const ttTitle = document.getElementById('tt-title');
+const ttDesc  = document.getElementById('tt-desc');
+const ttConn  = document.getElementById('tt-conn');
+const ttLink  = document.getElementById('tt-link');
+
+function showTT(e, key) {
+  const d = tips[key];
+  if (!d) return;
+  ttTitle.textContent = d.title;
+  ttDesc.textContent  = d.desc;
+  ttConn.textContent  = d.conn ? '↔ ' + d.conn : '';
+  if (d.link) { ttLink.href = d.link; ttLink.textContent = d.linkText; ttLink.style.display='block'; }
+  else ttLink.style.display='none';
+  tt.style.display = 'block';
+  moveTT(e);
+}
+function moveTT(e) {
+  const x = e.clientX + 14, y = e.clientY - 10;
+  const w = tt.offsetWidth, h = tt.offsetHeight;
+  tt.style.left = (x + w > window.innerWidth ? x - w - 28 : x) + 'px';
+  tt.style.top  = (y + h > window.innerHeight ? y - h : y) + 'px';
+}
+function hideTT() { tt.style.display = 'none'; }
+
+document.getElementById('sv').addEventListener('mouseover', e => {
+  const el = e.target.closest('[data-tt]');
+  if (el) showTT(e, el.getAttribute('data-tt'));
+});
+document.getElementById('sv').addEventListener('mousemove', e => {
+  if (tt.style.display !== 'none') moveTT(e);
+});
+document.getElementById('sv').addEventListener('mouseout', e => {
+  if (!e.target.closest('[data-tt]')) hideTT();
+});
+
+// filter logic
+const orgOn  = {phsa:true,hlth:true,fha:true,vch:true,iha:true,nha:true,viha:true,phc:true,ext:true};
+const connOn = {hl7:true,api:true,paris:true,pacs:true};
+
+function applyFilters() {
+  document.querySelectorAll('#sv [class]').forEach(el => {
+    const cls = el.getAttribute('class') || '';
+    const org  = (el.getAttribute('data-org') || '');
+    const conn = (el.getAttribute('data-conn') || '');
+    if (!org) return;
+    let show = orgOn[org] !== false;
+    if (conn && connOn[conn] === false) show = false;
+    el.style.opacity = show ? '' : '0.07';
+    el.style.pointerEvents = show ? '' : 'none';
+  });
+}
+
+document.querySelector('.toolbar').addEventListener('click', e => {
+  const p = e.target.closest('.pill');
+  if (!p) return;
+  const f = p.dataset.f, v = p.dataset.v;
+  if (f === 'org')  { orgOn[v]  = !orgOn[v];  }
+  if (f === 'conn') { connOn[v] = !connOn[v]; }
+  p.classList.toggle('on', f==='org' ? orgOn[v] : connOn[v]);
+  p.classList.toggle('off', f==='org' ? !orgOn[v] : !connOn[v]);
+  applyFilters();
+});
+</script>
