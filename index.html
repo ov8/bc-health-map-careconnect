@@ -2,244 +2,235 @@
 <html lang="en-CA">
 <head>
 <meta charset="utf-8" />
-<meta name="viewport" content="width=device-width,initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>BC Health CareConnect Interactive Infrastructure Map</title>
 <style>
-*{box-sizing:border-box} html,body{margin:0;width:100%;height:100%;font-family:Inter,Arial,sans-serif;background:#eef1f4;color:#17202a;overflow:hidden}
-#app{height:100vh;width:100vw;display:flex;flex-direction:column}
-header{height:56px;display:flex;align-items:center;gap:10px;padding:8px 12px;background:#fff;border-bottom:1px solid #d8dee4;z-index:10}
-h1{font-size:15px;margin:0;font-weight:750;line-height:1.1}.hint{font-size:12px;color:#637083}.spacer{flex:1}
-button,select,input{font:inherit} button{border:1px solid #cfd7df;background:#fff;border-radius:8px;padding:7px 10px;cursor:pointer;font-size:12px}button:hover{background:#f2f5f8}.primary{background:#1769d1;color:#fff;border-color:#1769d1}.danger{color:#b42318}.mini{padding:4px 7px;font-size:11px}
-#layout{display:flex;flex:1;min-height:0}
-#side{width:318px;background:#fff;border-right:1px solid #d8dee4;overflow:auto;padding:12px;z-index:9}
-.group{border:1px solid #e0e6ed;border-radius:12px;padding:10px;margin-bottom:10px;background:#fbfcfd}
-.group h2{font-size:12px;margin:0 0 8px;text-transform:uppercase;letter-spacing:.04em;color:#475467}
-.checks{display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px}.checks label{display:flex;align-items:center;gap:6px}
-.field{display:flex;gap:6px;margin:6px 0}.field label{width:74px;font-size:12px;color:#596579;padding-top:5px}.field input,.field select{flex:1;border:1px solid #ccd4dc;border-radius:8px;padding:6px;font-size:12px}
-#stage{position:relative;flex:1;overflow:hidden;background:#f6f7f8;background-image:radial-gradient(#d9dee4 1px,transparent 1px);background-size:24px 24px;cursor:grab}
-#stage.panning{cursor:grabbing}
-#map{position:absolute;left:0;top:0;width:3000px;height:1900px;transform-origin:0 0}
-svg#wires{position:absolute;inset:0;width:3000px;height:1900px;overflow:visible;pointer-events:none}
-.edge{fill:none;stroke-width:2.4;pointer-events:stroke}.edge.selected{stroke-width:5;filter:drop-shadow(0 0 4px rgba(23,105,209,.55))}
-.edge-label{font-size:11px;fill:#475467;paint-order:stroke;stroke:#fff;stroke-width:4;stroke-linejoin:round;pointer-events:none}
-.box{position:absolute;border:1.5px solid #d0d7de;background:rgba(255,255,255,.94);border-radius:14px;box-shadow:0 2px 12px rgba(16,24,40,.08);padding:14px;overflow:visible}
-.box-title{font-weight:750;font-size:14px;margin:0 0 4px}.box-sub{font-size:11px;color:#667085;margin-bottom:10px}
-.node{position:absolute;min-width:118px;min-height:72px;background:#fff;border:1.5px solid #cfd7df;border-radius:12px;box-shadow:0 2px 8px rgba(16,24,40,.08);padding:9px;text-align:center;cursor:move;user-select:none}
-.node:hover{box-shadow:0 0 0 3px rgba(23,105,209,.12),0 2px 8px rgba(16,24,40,.08)}.node.selected{outline:3px solid #1769d1;z-index:8}
-.ico{font-size:23px;line-height:1}.nt{font-size:11px;font-weight:700;margin-top:3px}.ns{font-size:9.5px;color:#667085;margin-top:2px}.q{color:#b45309;font-weight:900}
-.fha{border-color:#e0724c;background:#fff3ef}.vch{border-color:#dd7198;background:#fff1f6}.iha{border-color:#c58a36;background:#fff6e6}.nha{border-color:#8e86e6;background:#f4f3ff}.viha{border-color:#4cbf98;background:#ecfbf5}.phsa{border-color:#5aa1e8;background:#eaf4ff}.hlth{border-color:#8fc46a;background:#eef8e8}.nonha{border-color:#b5a267;background:#fff9e8}.unknown{border-color:#b5a267;background:#fff8e6;border-style:dashed}
-.broker{border-width:2.2px}.yellow .ico{background:#ffe28a;border:1px solid #d6a600;border-radius:7px;padding:2px}.hidden{display:none!important}
-#tip{position:fixed;display:none;max-width:320px;background:#fff;border:1px solid #cfd7df;border-radius:12px;padding:11px;box-shadow:0 8px 28px rgba(0,0,0,.18);font-size:12px;z-index:30}#tip b{display:block;margin-bottom:5px}
-.badge{display:inline-block;border:1px solid #d0d7de;border-radius:999px;padding:2px 7px;margin:2px;font-size:10px;background:#fff}.kbd{font-family:ui-monospace,Menlo,monospace;background:#f3f4f6;border:1px solid #d0d5dd;border-radius:5px;padding:1px 4px}
-@media(max-width:900px){#side{width:280px}header{height:auto;flex-wrap:wrap}.hint{display:none}}
+  :root{--bg:#f3f4f6;--ink:#17202a;--muted:#5f6b7a;--line:#cfd6de;--orange:#ef8f22;--grey:#111827;--blue:#2176d2;--green:#26a269;--care:#cfe4ff;--careBorder:#6aa7e8}
+  *{box-sizing:border-box} html,body{margin:0;width:100%;height:100%;overflow:hidden;font-family:Inter,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+  #app{width:100vw;height:100vh;display:grid;grid-template-columns:300px 1fr;grid-template-rows:54px 1fr}
+  header{grid-column:1/3;background:#fff;border-bottom:1px solid #d9dee6;display:flex;align-items:center;gap:12px;padding:8px 14px;z-index:5}
+  h1{font-size:16px;margin:0;font-weight:750}.hint{font-size:12px;color:var(--muted)}.spacer{flex:1}
+  button,.chip{border:1px solid #cbd3dc;background:#fff;border-radius:8px;padding:7px 9px;font-size:12px;cursor:pointer;user-select:none}button:hover,.chip:hover{background:#f2f5f8}.chip.on{background:#1f6feb;color:#fff;border-color:#1f6feb}.chip.off{opacity:.45;background:#fff;color:#344054}
+  aside{grid-column:1;grid-row:2;background:rgba(255,255,255,.94);border-right:1px solid #d9dee6;padding:12px;overflow:auto;z-index:4}
+  .group{margin-bottom:16px}.group h2{font-size:12px;color:#445166;margin:0 0 7px;text-transform:uppercase;letter-spacing:.04em}.chips{display:flex;gap:6px;flex-wrap:wrap}.small{font-size:12px;color:var(--muted);line-height:1.35}.legend-row{display:flex;align-items:center;gap:8px;font-size:12px;margin:7px 0}.sample{width:44px;height:0;border-top:1.6px solid var(--orange)}.sample.dash{border-top-style:dashed}.sample.grey{border-color:var(--grey)}.sample.blue{border-color:var(--blue)}.sample.green{border-color:var(--green)}
+  #stage{grid-column:2;grid-row:2;position:relative;overflow:hidden;background:#f2f3f4;background-image:radial-gradient(#d9dde3 1px,transparent 1px);background-size:26px 26px;cursor:grab}#stage.dragging{cursor:grabbing}
+  #map{position:absolute;left:0;top:0;width:3100px;height:2050px;transform-origin:0 0}.boundary{position:absolute;border:1.4px solid #b8c1cc;background:rgba(255,255,255,.70);border-radius:4px}.boundary .bt{position:absolute;left:14px;top:10px;font-size:14px;font-weight:750;color:#303b4a}.boundary .bs{position:absolute;left:14px;top:30px;font-size:11px;color:#6b7480}.phsaBox{background:rgba(255,255,255,.78);border-color:#a9b3bf}.careBox{background:rgba(207,228,255,.9);border:2px solid var(--careBorder);border-radius:4px}.careBox .bt{color:#145a9d}.dataLock,.nonHa{border-style:dashed;background:rgba(255,250,229,.82);border-color:#f0bb42}
+  svg#wires{position:absolute;inset:0;width:3100px;height:2050px;overflow:visible;z-index:8;pointer-events:auto}.wire{fill:none;stroke-width:1.35;opacity:.82;cursor:pointer}.wire.hl7{stroke:var(--orange)}.wire.api{stroke:var(--grey);stroke-dasharray:7 6}.wire.pacs{stroke:var(--blue);stroke-dasharray:7 6}.wire.paris{stroke:var(--green);stroke-dasharray:7 6}.wire.info{stroke:#111827;stroke-width:2.4;stroke-dasharray:12 7;opacity:.90}.wire.hidden{display:none}.wire:hover{stroke-width:2.8;opacity:1}.wire.selected{stroke-width:3;filter:drop-shadow(0 0 3px rgba(0,0,0,.22))}.wireLabel{font-size:11px;fill:#536170;paint-order:stroke;stroke:#fff;stroke-width:5px;stroke-linejoin:round;pointer-events:none}
+  .node{position:absolute;z-index:10;width:86px;text-align:center;cursor:grab;user-select:none}.node.dragging{cursor:grabbing}.ico{width:42px;height:42px;margin:0 auto 4px;display:flex;align-items:center;justify-content:center}.ico svg{width:42px;height:42px}.node .name{font-size:11px;line-height:1.1;color:#242e3a;font-weight:650;text-shadow:0 1px 0 #fff}.node .meta{font-size:9px;color:#687384;line-height:1.05;margin-top:2px}.node.hidden{display:none}.node.selected .ico{filter:drop-shadow(0 0 6px rgba(31,111,235,.55))}.node.selected .name{color:#0b5cad}.dim{opacity:.18!important}.question{color:#9a6700;font-weight:900}.topLabel{position:absolute;z-index:7;font-size:13px;font-weight:700;color:#596579;text-align:center;pointer-events:none}
+  #tip{position:fixed;display:none;max-width:360px;background:#fff;border:1px solid #cbd3dc;border-radius:12px;padding:12px;box-shadow:0 10px 34px rgba(0,0,0,.18);font-size:12px;line-height:1.42;z-index:50}#tip b{display:block;font-size:13px;margin-bottom:4px}#tip .muted{color:#667085;margin-top:5px}#tip .pill{display:inline-block;border:1px solid #d0d7de;border-radius:999px;padding:1px 7px;margin:5px 3px 0 0;color:#445166;background:#f7f9fb;font-size:10px}
+  #editBox{display:none;background:#f7f9fb;border:1px solid #d7dee6;border-radius:10px;padding:10px;margin-top:8px}.field{display:flex;gap:6px;margin:6px 0}.field input,.field select{width:100%;border:1px solid #cbd3dc;border-radius:7px;padding:6px;font-size:12px}.field label{min-width:60px;font-size:11px;color:#667085;padding-top:7px}textarea{width:100%;min-height:64px;border:1px solid #cbd3dc;border-radius:7px;padding:6px;font-size:12px}
+  @media(max-width:900px){#app{grid-template-columns:1fr;grid-template-rows:auto 1fr}aside{position:absolute;left:10px;top:64px;width:min(300px,calc(100vw - 20px));max-height:48vh;border:1px solid #d9dee6;border-radius:14px;box-shadow:0 4px 20px rgba(0,0,0,.12)}header{grid-column:1}.hint{display:none}#stage{grid-column:1;grid-row:2}}
 </style>
 </head>
 <body>
 <div id="app">
-<header>
-  <h1>BC Health CareConnect Interactive Infrastructure Map</h1>
-  <span class="hint">Drag the canvas to pan. Drag boxes to move. Click nodes or arrows to edit.</span>
-  <span class="spacer"></span>
-  <button onclick="zoomBy(1.15)">＋</button><button onclick="zoomBy(.87)">－</button><button onclick="resetView()">Home</button>
-  <button onclick="fitView()">Fit</button><button onclick="downloadPNG()">Download PNG</button>
-</header>
-<div id="layout">
-<aside id="side">
-  <div class="group">
-    <h2>View</h2>
-    <button class="mini primary" onclick="setMode('simple')">Simple</button>
-    <button class="mini" onclick="setMode('full')">Full robust</button>
-    <button class="mini" onclick="showAll()">Show all</button>
-  </div>
-  <div class="group">
-    <h2>Filter organizations</h2>
-    <div class="checks" id="orgFilters"></div>
-  </div>
-  <div class="group">
-    <h2>Filter connection types</h2>
-    <div class="checks" id="connFilters"></div>
-  </div>
-  <div class="group">
-    <h2>Filter layers</h2>
-    <div class="checks" id="layerFilters"></div>
-  </div>
-  <div class="group">
-    <h2>Edit selected</h2>
-    <div id="selectedHelp" class="hint">Click a node or arrow first.</div>
-    <div id="nodeEditor" class="hidden">
-      <div class="field"><label>Label</label><input id="editLabel"></div>
-      <div class="field"><label>Subtitle</label><input id="editSub"></div>
-      <div class="field"><label>Icon</label><input id="editIcon"></div>
-      <div class="field"><label>Org</label><select id="editOrg"></select></div>
-      <div class="field"><label>Layer</label><select id="editLayer"></select></div>
-      <button class="mini" onclick="applyNodeEdit()">Apply node changes</button>
-      <button class="mini danger" onclick="deleteSelected()">Delete node</button>
-    </div>
-    <div id="edgeEditor" class="hidden">
-      <div class="field"><label>Label</label><input id="edgeLabel"></div>
-      <div class="field"><label>Type</label><select id="edgeType"></select></div>
-      <div class="field"><label>Colour</label><input id="edgeColour" type="color"></div>
-      <div class="field"><label>From</label><select id="edgeFrom"></select></div>
-      <div class="field"><label>To</label><select id="edgeTo"></select></div>
-      <button class="mini" onclick="applyEdgeEdit()">Apply arrow changes</button>
-      <button class="mini" onclick="reverseEdge()">Reverse direction</button>
-      <button class="mini danger" onclick="deleteSelected()">Delete arrow</button>
-    </div>
-  </div>
-  <div class="group">
-    <h2>Add things</h2>
-    <button class="mini" onclick="addNode()">Add node</button>
-    <button class="mini" onclick="addEdge()">Add arrow between selected/new</button>
-    <p class="hint">Tip: Add a node, then edit its label, icon, org, and layer.</p>
-  </div>
-  <div class="group">
-    <h2>Save or move your edits</h2>
-    <button class="mini" onclick="saveLocal()">Save in this browser</button>
-    <button class="mini" onclick="loadLocal()">Load saved</button>
-    <button class="mini" onclick="downloadJSON()">Export JSON</button>
-    <label class="mini" style="display:inline-block;border:1px solid #cfd7df;border-radius:8px;padding:4px 7px;cursor:pointer;background:#fff">Import JSON<input type="file" accept="application/json" onchange="importJSON(event)" style="display:none"></label>
-    <p class="hint">Browser save helps you keep changes without touching code. Export JSON is your backup.</p>
-  </div>
-  <div class="group">
-    <h2>Legend</h2>
-    <span class="badge">Orange solid = HL7 push</span><span class="badge">Grey dashed = API pull</span><span class="badge">Blue dashed = PACS/DICOM</span><span class="badge">Green dashed = PARIS/community</span>
-    <p class="hint">Yellow icons only live inside Data Locks and Non-HA/Other Health Orgs.</p>
-  </div>
+<header><h1>BC Health CareConnect Interactive Infrastructure Map</h1><span class="hint">Drag map, zoom, hover icons or arrows, filter items, and drag icons to refine layout.</span><span class="spacer"></span><button id="zoomIn">＋</button><button id="zoomOut">－</button><button id="fitBtn">Fit</button><button id="homeBtn">Home</button></header>
+<aside>
+  <div class="group"><h2>View</h2><div class="chips"><span class="chip" data-view="simple">Simple</span><span class="chip on" data-view="full">Full robust</span><span class="chip" data-view="all">Show all</span></div></div>
+  <div class="group"><h2>Organizations, hide items only</h2><div class="chips" id="orgFilters"></div><p class="small">These hide icons and related arrows. The larger infrastructure boxes stay visible.</p></div>
+  <div class="group"><h2>Connection types</h2><div class="chips" id="connFilters"></div></div>
+  <div class="group"><h2>Layers</h2><div class="chips" id="layerFilters"></div></div>
+  <div class="group"><h2>Edit selected</h2><p class="small">Click an icon or arrow first. Drag icons to move them. Arrows redraw automatically.</p><div id="editBox"></div></div>
+  <div class="group"><h2>Save / Export</h2><div class="chips"><button id="saveBtn">Save browser edits</button><button id="loadBtn">Load saved</button><button id="exportBtn">Export JSON</button></div></div>
+  <div class="group"><h2>Legend</h2><div class="legend-row"><span class="sample"></span>HL7 v2 push</div><div class="legend-row"><span class="sample dash grey"></span>API pull</div><div class="legend-row"><span class="sample dash blue"></span>PACS / DICOM</div><div class="legend-row"><span class="sample dash green"></span>PARIS / community</div><div class="legend-row"><span class="sample dash grey" style="border-top-width:2.4px"></span>Thicker black = platform/reference path</div><p class="small">Colours are intentionally limited: orange solid = HL7 push, black dashed = API/reference/unknown, blue dashed = PACS/DICOM, and green dashed = PARIS/community. Unknowns are marked with ?. Purple is not used.</p></div>
 </aside>
-<main id="stage"><div id="map"><svg id="wires"></svg></div><div id="tip"></div></main>
-</div>
+<div id="stage"><div id="map"><svg id="wires" viewBox="0 0 3100 2050"><defs>
+  <marker id="arrOrange" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M2 1 L8 5 L2 9" fill="none" stroke="#ef8f22" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="arrGrey" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M2 1 L8 5 L2 9" fill="none" stroke="#111827" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="arrBlue" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M2 1 L8 5 L2 9" fill="none" stroke="#2176d2" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
+  <marker id="arrGreen" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M2 1 L8 5 L2 9" fill="none" stroke="#26a269" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></marker>
+</defs><g id="wireLayer"></g></svg><div id="nodeLayer"></div></div><div id="tip"></div></div>
 </div>
 <script>
-const ORGS={fha:'FHA',vch:'VCH',iha:'IHA',nha:'NHA',viha:'VIHA',phsa:'PHSA',hlth:'HLTH',nonha:'Non-HA',unknown:'Unknown'};
-const LAYERS={broker:'Broker',emr:'EMR/Clinical',community:'Community',pacs:'PACS/Imaging',cardiac:'Cardiac',provincial:'Provincial',external:'External',unknown:'Unknown'};
-const CONNS={hl7:{label:'HL7 push',color:'#ef7d22',dash:'',marker:'arrowO'},api:{label:'API pull',color:'#555b66',dash:'8 7',marker:'arrowG'},pacs:{label:'PACS/DICOM',color:'#2b7bbb',dash:'8 7',marker:'arrowB'},paris:{label:'PARIS/community',color:'#2ea666',dash:'8 7',marker:'arrowP'},doc:{label:'Documents/clinical docs',color:'#111827',dash:'4 6',marker:'arrowD'}};
-let nodes=[
-{id:'fhaBox',kind:'box',org:'fha',x:90,y:80,w:360,h:410,label:'Fraser Health Authority',sub:'Expanded HA stack'},
-{id:'vchBox',kind:'box',org:'vch',x:510,y:80,w:420,h:470,label:'Vancouver Coastal Health',sub:'Expanded HA stack'},
-{id:'ihaBox',kind:'box',org:'iha',x:990,y:80,w:360,h:390,label:'Interior Health Authority',sub:'Expanded HA stack'},
-{id:'nhaBox',kind:'box',org:'nha',x:1410,y:80,w:340,h:350,label:'Northern Health Authority',sub:'Expanded HA stack'},
-{id:'vihaBox',kind:'box',org:'viha',x:1810,y:80,w:340,h:350,label:'Island Health Authority',sub:'Expanded HA stack'},
-{id:'phsaBox',kind:'box',org:'phsa',x:1030,y:660,w:580,h:440,label:'PHSA CareConnect Platform',sub:'Platform boundary'},
-{id:'hlthBox',kind:'box',org:'hlth',x:2020,y:520,w:390,h:380,label:'Ministry of Health / HLTH',sub:'Provincial systems'},
-{id:'nonhaBox',kind:'box',org:'nonha',x:130,y:1220,w:500,h:360,label:'Non-HA & Other Health Organizations',sub:'External and partially mapped'},
-{id:'unknownBox',kind:'box',org:'unknown',x:700,y:1220,w:430,h:300,label:'Data Locks / Unknowns',sub:'Flagged and agreement-gated'},
-{id:'fhaBroker',org:'fha',layer:'broker',x:205,y:150,w:150,h:70,icon:'🔀',label:'FHA Broker',sub:'interface engine',tip:'Aggregation point for Fraser systems.'},
-{id:'fhaMeditech',org:'fha',layer:'emr',x:135,y:250,w:120,h:76,icon:'🗄️',label:'FHA Meditech',sub:'docs, encounters'},
-{id:'fhaExpanse',org:'fha',layer:'emr',x:285,y:250,w:120,h:76,icon:'🗄️',label:'FHA Expanse',sub:'encounters'},
-{id:'fhaParis',org:'fha',layer:'community',x:135,y:350,w:120,h:76,icon:'🌿',label:'FHA PARIS',sub:'community'},
-{id:'fhaPacs',org:'fha',layer:'pacs',x:285,y:350,w:120,h:76,icon:'🖼️',label:'PDIV PACS',sub:'imaging ?'},
-{id:'fhaPrism',org:'fha',layer:'cardiac',x:205,y:450,w:150,h:76,icon:'🫀',label:'PRISM-BC',sub:'cardiac docs'},
-{id:'vchBroker',org:'vch',layer:'broker',x:645,y:150,w:150,h:70,icon:'🔀',label:'VCH Broker',sub:'interface engine'},
-{id:'vchParis',org:'vch',layer:'community',x:545,y:250,w:116,h:76,icon:'🌿',label:'VCHA PARIS',sub:'community'},
-{id:'vchProfile',org:'vch',layer:'community',x:680,y:250,w:116,h:76,icon:'🗄️',label:'Profile EMR',sub:'community'},
-{id:'vchCerner',org:'vch',layer:'emr',x:815,y:250,w:116,h:76,icon:'🗄️',label:'VPP Cerner',sub:'documents'},
-{id:'vchSoftmed',org:'vch',layer:'emr',x:545,y:350,w:116,h:76,icon:'🗄️',label:'SoftMed',sub:'documents'},
-{id:'vchMmodal',org:'vch',layer:'emr',x:680,y:350,w:116,h:76,icon:'📄',label:'M*Modal',sub:'transcription'},
-{id:'vchSyngo',org:'vch',layer:'pacs',x:815,y:350,w:116,h:76,icon:'🖼️',label:'Syngo/PACS',sub:'imaging'},
-{id:'vchMuse',org:'vch',layer:'cardiac',x:545,y:450,w:116,h:76,icon:'📈',label:'MUSE',sub:'cardiology'},
-{id:'vchIclinic',org:'vch',layer:'emr',x:680,y:450,w:116,h:76,icon:'🗄️',label:'iClinic',sub:'clinic docs'},
-{id:'vchPrism',org:'vch',layer:'cardiac',x:815,y:450,w:116,h:76,icon:'🫀',label:'PRISM-BC',sub:'cardiac docs'},
-{id:'ihaBroker',org:'iha',layer:'broker',x:1095,y:150,w:150,h:70,icon:'🔀',label:'IHA Broker',sub:'interface engine'},
-{id:'ihaMeditech',org:'iha',layer:'emr',x:1035,y:250,w:120,h:76,icon:'🗄️',label:'IHA Meditech',sub:'docs, encounters'},
-{id:'ihaIclinic',org:'iha',layer:'emr',x:1185,y:250,w:120,h:76,icon:'🗄️',label:'IHA iClinic',sub:'clinic docs'},
-{id:'ihaPacs',org:'iha',layer:'pacs',x:1035,y:350,w:120,h:76,icon:'🖼️',label:'PDIV PACS',sub:'imaging ?'},
-{id:'ihaPrism',org:'iha',layer:'cardiac',x:1185,y:350,w:120,h:76,icon:'🫀',label:'PRISM-BC',sub:'cardiac docs'},
-{id:'nhaBroker',org:'nha',layer:'broker',x:1505,y:150,w:150,h:70,icon:'🔀',label:'NHA Broker',sub:'interface engine'},
-{id:'nhaCerner',org:'nha',layer:'emr',x:1455,y:250,w:120,h:76,icon:'🗄️',label:'NHA Cerner',sub:'docs, encounters'},
-{id:'nhaPacs',org:'nha',layer:'pacs',x:1605,y:250,w:120,h:76,icon:'🖼️',label:'PDIV PACS',sub:'imaging ?'},
-{id:'nhaPrism',org:'nha',layer:'cardiac',x:1530,y:350,w:120,h:76,icon:'🫀',label:'PRISM-BC',sub:'cardiac docs'},
-{id:'vihaBroker',org:'viha',layer:'broker',x:1905,y:150,w:150,h:70,icon:'🔀',label:'VIHA Broker',sub:'interface engine'},
-{id:'vihaCerner',org:'viha',layer:'emr',x:1855,y:250,w:120,h:76,icon:'🗄️',label:'VIHA-Cerner',sub:'docs, encounters'},
-{id:'vihaPacs',org:'viha',layer:'pacs',x:2005,y:250,w:120,h:76,icon:'🖼️',label:'PDIC PACS',sub:'imaging ?'},
-{id:'vihaPrism',org:'viha',layer:'cardiac',x:1930,y:350,w:120,h:76,icon:'🫀',label:'PRISM-BC',sub:'cardiac docs'},
-{id:'dib',org:'phsa',layer:'broker',x:1075,y:735,w:155,h:78,icon:'🔀',label:'Data Ingestion',sub:'broker / ETL'},
-{id:'ccui',org:'phsa',layer:'emr',x:1260,y:720,w:135,h:74,icon:'🖥️',label:'CareConnect UI',sub:'clinician view'},
-{id:'ccapi',org:'phsa',layer:'emr',x:1425,y:720,w:135,h:74,icon:'</>',label:'CareConnect API',sub:'services'},
-{id:'ccms',org:'phsa',layer:'emr',x:1260,y:840,w:300,h:82,icon:'⚙️',label:'Microservices',sub:'routing, auth, retrieval'},
-{id:'cdr',org:'phsa',layer:'emr',x:1285,y:970,w:250,h:84,icon:'🗄️',label:'CareConnect CDR',sub:'clinical data repository'},
-{id:'primaryPacs',org:'phsa',layer:'pacs',x:940,y:1040,w:140,h:78,icon:'🖼️',label:'Primary PACS',sub:'PHSA imaging'},
-{id:'hgw',org:'phsa',layer:'provincial',x:1660,y:810,w:170,h:78,icon:'</>',label:'PHSA HealthGateway',sub:'API consumers'},
-{id:'lcb',org:'hlth',layer:'broker',x:2120,y:585,w:170,h:78,icon:'🔀',label:'Lab Consolidation',sub:'broker'},
-{id:'hail',org:'hlth',layer:'provincial',x:2070,y:700,w:130,h:76,icon:'🗄️',label:'HAIL',sub:'analytics'},
-{id:'empi',org:'hlth',layer:'provincial',x:2240,y:700,w:130,h:76,icon:'🪪',label:'EMPI',sub:'identity'},
-{id:'pharmanet',org:'hlth',layer:'provincial',x:2070,y:800,w:130,h:76,icon:'💊',label:'PharmaNet',sub:'medications'},
-{id:'panorama',org:'hlth',layer:'provincial',x:2240,y:800,w:130,h:76,icon:'💉',label:'Panorama',sub:'immunization'},
-{id:'lifelabs',org:'nonha',layer:'external',x:185,y:1300,w:135,h:78,icon:'🧪',label:'LifeLabs BC',sub:'external labs',yellow:true},
-{id:'pharmacies',org:'nonha',layer:'external',x:350,y:1300,w:135,h:78,icon:'🏥',label:'Pharmacies',sub:'community',yellow:true},
-{id:'bcehs',org:'nonha',layer:'external',x:185,y:1410,w:135,h:78,icon:'🚑',label:'BCEHS CP',sub:'manual docs',yellow:true},
-{id:'mois',org:'nonha',layer:'external',x:350,y:1410,w:135,h:78,icon:'🗂️',label:'MOIS / HLBC',sub:'virtual EMR',yellow:true},
-{id:'lockedParis',org:'unknown',layer:'unknown',x:755,y:1300,w:150,h:78,icon:'🔒',label:'Privacy-blocked PARIS',sub:'not available ?',yellow:true},
-{id:'dictation',org:'unknown',layer:'unknown',x:935,y:1300,w:150,h:78,icon:'🟨',label:'Private dictation',sub:'details unknown ?',yellow:true},
-{id:'excluded',org:'unknown',layer:'unknown',x:845,y:1410,w:150,h:78,icon:'⚠️',label:'Excluded reports',sub:'policy/privacy ?',yellow:true}
-];
-let edges=[
-{id:'e1',from:'fhaMeditech',to:'fhaBroker',type:'hl7',label:'ADT/docs'}, {id:'e2',from:'fhaExpanse',to:'fhaBroker',type:'hl7',label:'encounters'}, {id:'e3',from:'fhaParis',to:'fhaBroker',type:'paris',label:'community'}, {id:'e4',from:'fhaPacs',to:'ccms',type:'pacs',label:'PACS pull'}, {id:'e5',from:'fhaPrism',to:'fhaBroker',type:'hl7',label:'cardiac docs'},
-{id:'e6',from:'vchParis',to:'vchBroker',type:'paris',label:'community'}, {id:'e7',from:'vchProfile',to:'vchBroker',type:'paris',label:'community'}, {id:'e8',from:'vchCerner',to:'vchBroker',type:'hl7',label:'docs'}, {id:'e9',from:'vchSoftmed',to:'vchBroker',type:'doc',label:'docs'}, {id:'e10',from:'vchMmodal',to:'vchBroker',type:'doc',label:'transcripts'}, {id:'e11',from:'vchSyngo',to:'ccms',type:'pacs',label:'imaging'}, {id:'e12',from:'vchMuse',to:'vchBroker',type:'doc',label:'cardiology'}, {id:'e13',from:'vchIclinic',to:'vchBroker',type:'doc',label:'clinic'}, {id:'e14',from:'vchPrism',to:'vchBroker',type:'hl7',label:'cardiac docs'},
-{id:'e15',from:'ihaMeditech',to:'ihaBroker',type:'hl7',label:'docs/enc'}, {id:'e16',from:'ihaIclinic',to:'ihaBroker',type:'doc',label:'clinic'}, {id:'e17',from:'ihaPacs',to:'ccms',type:'pacs',label:'PACS pull'}, {id:'e18',from:'ihaPrism',to:'ihaBroker',type:'hl7',label:'cardiac docs'},
-{id:'e19',from:'nhaCerner',to:'nhaBroker',type:'hl7',label:'docs/enc'}, {id:'e20',from:'nhaPacs',to:'ccms',type:'pacs',label:'PACS pull'}, {id:'e21',from:'nhaPrism',to:'nhaBroker',type:'hl7',label:'cardiac docs'},
-{id:'e22',from:'vihaCerner',to:'vihaBroker',type:'hl7',label:'docs/enc'}, {id:'e23',from:'vihaPacs',to:'ccms',type:'pacs',label:'PACS pull'}, {id:'e24',from:'vihaPrism',to:'vihaBroker',type:'hl7',label:'cardiac docs'},
-{id:'e25',from:'fhaBroker',to:'dib',type:'hl7',label:'HA feed'}, {id:'e26',from:'vchBroker',to:'dib',type:'hl7',label:'HA feed'}, {id:'e27',from:'ihaBroker',to:'dib',type:'hl7',label:'HA feed'}, {id:'e28',from:'nhaBroker',to:'dib',type:'hl7',label:'HA feed'}, {id:'e29',from:'vihaBroker',to:'dib',type:'hl7',label:'HA feed'},
-{id:'e30',from:'dib',to:'cdr',type:'hl7',label:'ingest'}, {id:'e31',from:'ccui',to:'ccapi',type:'api',label:'uses'}, {id:'e32',from:'ccapi',to:'ccms',type:'api',label:'calls'}, {id:'e33',from:'ccms',to:'cdr',type:'api',label:'query'}, {id:'e34',from:'ccms',to:'primaryPacs',type:'pacs',label:'image pull'}, {id:'e35',from:'ccapi',to:'hgw',type:'api',label:'API access'},
-{id:'e36',from:'ccms',to:'empi',type:'api',label:'patient match'}, {id:'e37',from:'ccms',to:'pharmanet',type:'api',label:'meds pull'}, {id:'e38',from:'ccms',to:'panorama',type:'api',label:'immunization pull'}, {id:'e39',from:'lcb',to:'hail',type:'hl7',label:'lab feed'},
-{id:'e40',from:'lifelabs',to:'lcb',type:'hl7',label:'lab results'}, {id:'e41',from:'fhaBroker',to:'lcb',type:'hl7',label:'labs'}, {id:'e42',from:'vchBroker',to:'lcb',type:'hl7',label:'labs'}, {id:'e43',from:'ihaBroker',to:'lcb',type:'hl7',label:'labs'}, {id:'e44',from:'nhaBroker',to:'lcb',type:'hl7',label:'labs'}, {id:'e45',from:'vihaBroker',to:'lcb',type:'hl7',label:'labs'}, {id:'e46',from:'pharmacies',to:'pharmanet',type:'api',label:'dispense data'}, {id:'e47',from:'bcehs',to:'dib',type:'doc',label:'manual docs'}, {id:'e48',from:'mois',to:'dib',type:'doc',label:'community docs'}, {id:'e49',from:'lockedParis',to:'vchParis',type:'paris',label:'blocked'}, {id:'e50',from:'excluded',to:'cdr',type:'doc',label:'not shown'}
-];
-let filters={org:new Set(Object.keys(ORGS)), layer:new Set(Object.keys(LAYERS)), conn:new Set(Object.keys(CONNS))};
-let scale=.48, tx=10, ty=10, panning=false, panStart=null, selected=null, dragNode=null;
-const stage=document.getElementById('stage'), map=document.getElementById('map'), wires=document.getElementById('wires');
-function initFilters(){
-  mkChecks('orgFilters',ORGS,'org'); mkChecks('layerFilters',LAYERS,'layer'); mkChecks('connFilters',Object.fromEntries(Object.entries(CONNS).map(([k,v])=>[k,v.label])),'conn');
-  fillSelect('editOrg',ORGS); fillSelect('editLayer',LAYERS); fillSelect('edgeType',Object.fromEntries(Object.entries(CONNS).map(([k,v])=>[k,v.label])));
+const orgs={fha:'FHA',vch:'VCH',iha:'IHA',nha:'NHA',viha:'VIHA',phsa:'PHSA',hlth:'HLTH',nonha:'Non-HA',locked:'Locked'};
+const conns={hl7:'HL7 push',api:'API pull',pacs:'PACS/DICOM',paris:'PARIS/community'};
+const layers={docs:'Documents',enc:'Encounters',community:'Community',labs:'Labs',imaging:'Imaging',meds:'Medications',identity:'Identity',platform:'Platform',unknown:'Unknown'};
+const iconStroke='#314152';
+function icon(kind){
+ const base={db:`<svg viewBox="0 0 48 48"><ellipse cx="24" cy="12" rx="15" ry="6" fill="#e7e9ee" stroke="${iconStroke}"/><path d="M9 12v22c0 3.3 6.7 6 15 6s15-2.7 15-6V12" fill="#f6f7fa" stroke="${iconStroke}"/><ellipse cx="24" cy="34" rx="15" ry="6" fill="#eef0f4" stroke="${iconStroke}"/></svg>`,
+ broker:`<svg viewBox="0 0 48 48"><rect x="9" y="10" width="30" height="22" rx="3" fill="#fff" stroke="${iconStroke}"/><path d="M14 17h20M14 24h13" stroke="${iconStroke}"/><circle cx="33" cy="26" r="3" fill="#26a269"/><path d="M24 32v7M14 39h20" stroke="${iconStroke}"/></svg>`,
+ api:`<svg viewBox="0 0 48 48"><rect x="8" y="9" width="32" height="30" rx="5" fill="#fff" stroke="${iconStroke}"/><path d="M20 18l-6 6 6 6M28 18l6 6-6 6M26 15l-4 18" fill="none" stroke="#2176d2" stroke-width="2"/></svg>`,
+ ui:`<svg viewBox="0 0 48 48"><rect x="7" y="10" width="34" height="23" rx="3" fill="#fff" stroke="${iconStroke}"/><path d="M18 38h12M24 33v5" stroke="${iconStroke}"/><path d="M13 17h22M13 23h16" stroke="#2176d2"/></svg>`,
+ service:`<svg viewBox="0 0 48 48"><circle cx="16" cy="18" r="7" fill="#fff" stroke="${iconStroke}"/><circle cx="32" cy="18" r="7" fill="#fff" stroke="${iconStroke}"/><circle cx="24" cy="33" r="7" fill="#fff" stroke="${iconStroke}"/><path d="M21 22l2 5M27 22l-2 5" stroke="#2176d2"/></svg>`,
+ pacs:`<svg viewBox="0 0 48 48"><rect x="9" y="10" width="30" height="24" rx="3" fill="#fff" stroke="${iconStroke}"/><circle cx="24" cy="22" r="8" fill="none" stroke="#2176d2"/><path d="M13 39h22" stroke="${iconStroke}"/></svg>`,
+ doc:`<svg viewBox="0 0 48 48"><path d="M14 7h15l8 8v26H14z" fill="#fff" stroke="${iconStroke}"/><path d="M29 7v9h8M18 23h16M18 29h16M18 35h12" stroke="#2176d2"/></svg>`,
+ lab:`<svg viewBox="0 0 48 48"><path d="M20 8h8M22 8v13L12 38c-1.5 2.5.3 5 3.2 5h17.6c2.9 0 4.7-2.5 3.2-5L26 21V8" fill="#fff" stroke="${iconStroke}"/><path d="M16 34h16" stroke="#ef8f22"/></svg>`,
+ med:`<svg viewBox="0 0 48 48"><rect x="15" y="12" width="18" height="27" rx="4" fill="#fff" stroke="${iconStroke}"/><path d="M19 19h10M24 14v5M21 27h6M21 33h6" stroke="#26a269"/></svg>`,
+ person:`<svg viewBox="0 0 48 48"><circle cx="24" cy="16" r="7" fill="#fff" stroke="${iconStroke}"/><path d="M12 39c2-9 22-9 24 0" fill="#fff" stroke="${iconStroke}"/><path d="M24 25v8" stroke="#2176d2"/></svg>`,
+ lock:`<svg viewBox="0 0 48 48"><rect x="13" y="22" width="22" height="18" rx="4" fill="#fff6d8" stroke="#9a6700"/><path d="M17 22v-6c0-9 14-9 14 0v6" fill="none" stroke="#9a6700"/><circle cx="24" cy="31" r="3" fill="#9a6700"/></svg>`,
+ other:`<svg viewBox="0 0 48 48"><rect x="10" y="12" width="28" height="24" rx="4" fill="#fff" stroke="${iconStroke}"/><path d="M16 19h16M16 25h16M16 31h10" stroke="#777"/><circle cx="36" cy="12" r="5" fill="#ffd866" stroke="#9a6700"/></svg>`};
+ return base[kind]||base.other;
 }
-function mkChecks(id,obj,type){const el=document.getElementById(id);el.innerHTML='';Object.entries(obj).forEach(([k,v])=>{const lab=document.createElement('label');lab.innerHTML=`<input type="checkbox" checked data-type="${type}" value="${k}"> ${v}`;el.appendChild(lab);lab.querySelector('input').onchange=e=>{e.target.checked?filters[type].add(k):filters[type].delete(k);render();};});}
-function fillSelect(id,obj){const s=document.getElementById(id);s.innerHTML=Object.entries(obj).map(([k,v])=>`<option value="${k}">${v.label||v}</option>`).join('');}
-function applyTransform(){map.style.transform=`translate(${tx}px,${ty}px) scale(${scale})`;}
-function zoomBy(f){scale=Math.max(.2,Math.min(2.2,scale*f));applyTransform();}
-function resetView(){scale=.48;tx=10;ty=10;applyTransform();}
-function fitView(){scale=Math.min(stage.clientWidth/2550,stage.clientHeight/1580);tx=20;ty=20;applyTransform();}
-function nodeBy(id){return nodes.find(n=>n.id===id)}
-function centre(n){return{x:n.x+n.w/2,y:n.y+n.h/2}}
-function edgePath(a,b){let ca=centre(a), cb=centre(b);let dx=cb.x-ca.x, dy=cb.y-ca.y;let c1x=ca.x+dx*.45, c1y=ca.y;let c2x=ca.x+dx*.55, c2y=cb.y;return`M${ca.x},${ca.y} C${c1x},${c1y} ${c2x},${c2y} ${cb.x},${cb.y}`;}
-function visibleNode(n){if(n.kind==='box')return filters.org.has(n.org);return filters.org.has(n.org)&&filters.layer.has(n.layer);}
-function visibleEdge(e){const a=nodeBy(e.from), b=nodeBy(e.to);return a&&b&&visibleNode(a)&&visibleNode(b)&&filters.conn.has(e.type);}
-function render(){
-  document.querySelectorAll('.node,.box').forEach(e=>e.remove()); wires.innerHTML=defs();
-  nodes.forEach(n=>{if(!visibleNode(n))return; const el=document.createElement('div');el.id='n_'+n.id;el.dataset.id=n.id;el.className=(n.kind==='box'?'box ':'node ')+(n.org||'')+(n.layer==='broker'?' broker':'')+(n.yellow?' yellow':'')+(selected?.type==='node'&&selected.id===n.id?' selected':'');el.style.left=n.x+'px';el.style.top=n.y+'px';el.style.width=n.w+'px';el.style.height=n.h+'px';
-    if(n.kind==='box') el.innerHTML=`<div class="box-title">${n.label}</div><div class="box-sub">${n.sub||''}</div>`;
-    else el.innerHTML=`<div class="ico">${n.icon||'⬚'}</div><div class="nt">${n.label}</div><div class="ns">${n.sub||''}${(n.sub||'').includes('?')?' <span class=q>?</span>':''}</div>`;
-    map.appendChild(el); el.onmousedown=ev=>startNodeDrag(ev,n.id); el.onclick=ev=>{select('node',n.id);ev.stopPropagation();}; el.onmouseenter=ev=>showTip(ev,n); el.onmousemove=moveTip; el.onmouseleave=hideTip;});
-  edges.forEach(e=>{if(!visibleEdge(e))return; const a=nodeBy(e.from), b=nodeBy(e.to), c=CONNS[e.type]||CONNS.api; const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('d',edgePath(a,b));p.setAttribute('class','edge'+(selected?.type==='edge'&&selected.id===e.id?' selected':''));p.setAttribute('stroke',e.color||c.color);if(c.dash)p.setAttribute('stroke-dasharray',c.dash);p.setAttribute('marker-end',`url(#${c.marker})`);p.style.pointerEvents='stroke';p.onclick=ev=>{select('edge',e.id);ev.stopPropagation();};wires.appendChild(p);
-    const ca=centre(a), cb=centre(b); const t=document.createElementNS('http://www.w3.org/2000/svg','text');t.setAttribute('x',(ca.x+cb.x)/2);t.setAttribute('y',(ca.y+cb.y)/2-8);t.setAttribute('class','edge-label');t.textContent=e.label||c.label;wires.appendChild(t);});
-  populateEdgeNodeSelects();
-}
-function defs(){return`<defs>${Object.entries(CONNS).map(([k,c])=>`<marker id="${c.marker}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M2 1 L8 5 L2 9" fill="none" stroke="${c.color}" stroke-width="2"/></marker>`).join('')}</defs>`}
-function startNodeDrag(ev,id){if(ev.target.classList.contains('box')){} select('node',id); dragNode={id,startX:ev.clientX,startY:ev.clientY,origX:nodeBy(id).x,origY:nodeBy(id).y}; ev.preventDefault();}
-window.addEventListener('mousemove',ev=>{if(dragNode){const n=nodeBy(dragNode.id);n.x=dragNode.origX+(ev.clientX-dragNode.startX)/scale;n.y=dragNode.origY+(ev.clientY-dragNode.startY)/scale;render();return;} if(panning){tx=panStart.tx+(ev.clientX-panStart.x);ty=panStart.ty+(ev.clientY-panStart.y);applyTransform();}});
-window.addEventListener('mouseup',()=>{dragNode=null;panning=false;stage.classList.remove('panning')});
-stage.addEventListener('mousedown',ev=>{if(ev.target!==stage&&ev.target!==map)return;panning=true;stage.classList.add('panning');panStart={x:ev.clientX,y:ev.clientY,tx,ty};});
-stage.addEventListener('wheel',ev=>{ev.preventDefault();const old=scale;scale=Math.max(.2,Math.min(2.2,scale*(ev.deltaY<0?1.08:.92)));const r=stage.getBoundingClientRect(),mx=ev.clientX-r.left,my=ev.clientY-r.top;tx=mx-(mx-tx)*(scale/old);ty=my-(my-ty)*(scale/old);applyTransform();},{passive:false});
-function select(type,id){selected={type,id}; render(); updateEditor();}
-function updateEditor(){document.getElementById('selectedHelp').classList.toggle('hidden',!!selected);document.getElementById('nodeEditor').classList.add('hidden');document.getElementById('edgeEditor').classList.add('hidden');if(!selected)return;
- if(selected.type==='node'){const n=nodeBy(selected.id);document.getElementById('nodeEditor').classList.remove('hidden');editLabel.value=n.label||'';editSub.value=n.sub||'';editIcon.value=n.icon||'';editOrg.value=n.org||'unknown';editLayer.value=n.layer||'unknown';}
- if(selected.type==='edge'){const e=edges.find(x=>x.id===selected.id);document.getElementById('edgeEditor').classList.remove('hidden');edgeLabel.value=e.label||'';edgeType.value=e.type;edgeColour.value=e.color||CONNS[e.type].color;edgeFrom.value=e.from;edgeTo.value=e.to;}}
-function applyNodeEdit(){const n=nodeBy(selected.id);n.label=editLabel.value;n.sub=editSub.value;n.icon=editIcon.value;n.org=editOrg.value;n.layer=editLayer.value;render();}
-function applyEdgeEdit(){const e=edges.find(x=>x.id===selected.id);e.label=edgeLabel.value;e.type=edgeType.value;e.color=edgeColour.value;e.from=edgeFrom.value;e.to=edgeTo.value;render();}
-function reverseEdge(){const e=edges.find(x=>x.id===selected.id);[e.from,e.to]=[e.to,e.from];render();updateEditor();}
-function deleteSelected(){if(!selected)return;if(selected.type==='node'){nodes=nodes.filter(n=>n.id!==selected.id);edges=edges.filter(e=>e.from!==selected.id&&e.to!==selected.id)}else edges=edges.filter(e=>e.id!==selected.id);selected=null;render();updateEditor();}
-function populateEdgeNodeSelects(){const opts=nodes.filter(n=>n.kind!=='box').map(n=>`<option value="${n.id}">${n.label}</option>`).join('');edgeFrom.innerHTML=opts;edgeTo.innerHTML=opts;if(selected?.type==='edge'){const e=edges.find(x=>x.id===selected.id);edgeFrom.value=e.from;edgeTo.value=e.to;}}
-function addNode(){const id='node'+Date.now();nodes.push({id,org:'unknown',layer:'unknown',x:(-tx+stage.clientWidth/2)/scale,y:(-ty+stage.clientHeight/2)/scale,w:140,h:78,icon:'⬚',label:'New node',sub:'edit me'});select('node',id);}
-function addEdge(){const ids=nodes.filter(n=>n.kind!=='box').map(n=>n.id);const id='edge'+Date.now();edges.push({id,from:selected?.type==='node'?selected.id:ids[0],to:ids[1]||ids[0],type:'api',label:'new arrow'});select('edge',id);}
-function setMode(m){if(m==='simple'){filters.layer=new Set(['broker','emr','provincial','external','unknown']);filters.conn=new Set(['hl7','api']);}else{filters.layer=new Set(Object.keys(LAYERS));filters.conn=new Set(Object.keys(CONNS));} syncChecks();render();}
-function showAll(){filters.org=new Set(Object.keys(ORGS));filters.layer=new Set(Object.keys(LAYERS));filters.conn=new Set(Object.keys(CONNS));syncChecks();render();}
-function syncChecks(){document.querySelectorAll('input[type=checkbox][data-type]').forEach(i=>i.checked=filters[i.dataset.type].has(i.value));}
-function saveLocal(){localStorage.setItem('bcCareConnectMap',JSON.stringify({nodes,edges}));alert('Saved in this browser.');}
-function loadLocal(){const s=localStorage.getItem('bcCareConnectMap');if(!s)return alert('No saved map found in this browser.');const d=JSON.parse(s);nodes=d.nodes;edges=d.edges;render();}
-function downloadJSON(){download('bc-careconnect-map-data.json',JSON.stringify({nodes,edges},null,2),'application/json');}
-function importJSON(ev){const f=ev.target.files[0];if(!f)return;const r=new FileReader();r.onload=()=>{const d=JSON.parse(r.result);nodes=d.nodes;edges=d.edges;render();};r.readAsText(f);}
-function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type}));a.download=name;a.click();}
-function downloadPNG(){alert('For now, use your browser screenshot/export. The editable map data can be exported as JSON. PNG export can be added next if needed.');}
-const tip=document.getElementById('tip');function showTip(ev,n){tip.innerHTML=`<b>${n.label}</b>${n.tip||n.sub||''}<br><span class=hint>Org: ${ORGS[n.org]||n.org} · Layer: ${LAYERS[n.layer]||n.layer||'group'}</span>`;tip.style.display='block';moveTip(ev)}function moveTip(ev){tip.style.left=Math.min(ev.clientX+14,window.innerWidth-340)+'px';tip.style.top=Math.min(ev.clientY+14,window.innerHeight-150)+'px'}function hideTip(){tip.style.display='none'}
-document.addEventListener('click',()=>{selected=null;render();updateEditor();});
-initFilters();render();applyTransform();
+const boundaries=[
+ {id:'fhaBox',x:90,y:110,w:390,h:360,title:'Fraser Health infrastructure',sub:'FHA source systems and interface area'},
+ {id:'vchBox',x:560,y:110,w:460,h:360,title:'Vancouver Coastal infrastructure',sub:'VCH source systems and interface area'},
+ {id:'ihaBox',x:1100,y:110,w:390,h:360,title:'Interior Health infrastructure',sub:'IHA source systems and interface area'},
+ {id:'nhaBox',x:1570,y:110,w:350,h:320,title:'Northern Health infrastructure',sub:'NHA source systems and interface area'},
+ {id:'vihaBox',x:1990,y:110,w:350,h:320,title:'Island Health infrastructure',sub:'VIHA source systems and interface area'},
+ {id:'phsaBox',x:650,y:610,w:1120,h:600,title:'PHSA infrastructure',sub:'Provincial platform, integration, and PHSA source systems',cls:'phsaBox'},
+ {id:'careBox',x:1110,y:760,w:420,h:300,title:'CareConnect platform',sub:'Blue platform box inside PHSA',cls:'careBox'},
+ {id:'hlthBox',x:2050,y:620,w:410,h:430,title:'Ministry of Health systems',sub:'Provincial identity, medication, public health, and analytics systems'},
+ {id:'nonHaBox',x:120,y:1350,w:760,h:430,title:'Non-HA and other health organizations',sub:'External, community, or partially mapped sources',cls:'nonHa'},
+ {id:'lockBox',x:960,y:1350,w:720,h:430,title:'Data locks and unknowns',sub:'Privacy-blocked, agreement-gated, or uncertain sources',cls:'dataLock'}
+];
+const nodes=[
+ {id:'fha_broker',name:'FHA Broker',org:'fha',layer:'platform',kind:'broker',x:240,y:180,tip:'Fraser Health interface broker area. Working map shows HA systems feeding through or being accessed from this area before CareConnect integration.'},
+ {id:'fha_medi',name:'FHA Meditech',org:'fha',layer:'docs enc',kind:'db',x:135,y:280,tip:'Documents: FHA Meditech appears for Fraser facilities, with many listed as available from November 2014 to present. Encounters: FHA Meditech appears from July 26, 2017 to present.'},
+ {id:'fha_exp',name:'FHA Expanse',org:'fha',layer:'enc',kind:'db',x:240,y:280,tip:'Encounters reference: FHA Expanse appears for selected Fraser sites, including Burnaby Hospital September 2026, Eagle Ridge Ambulatory March 2023 to present, Jim Pattison Outpatient Hospital and Surrey Memorial Hospital May 30, 2026, and others.'},
+ {id:'fha_paris',name:'FHA PARIS',org:'fha',layer:'community enc',kind:'db',x:345,y:280,tip:'Community Documents: PARIS Notes and Assessments from FHA Community are viewable in CareConnect. Encounters reference also lists FHA Community through FHA PARIS from February 5, 2020 to present.'},
+ {id:'fha_prism',name:'PRISM-BC',org:'fha',layer:'docs',kind:'db',x:135,y:385,tip:'Documents reference: PRISM-BC appears for Fraser sites such as Abbotsford Regional Hospital and Jim Pattison Outpatient Centre from July 26, 2023 to present.'},
+ {id:'fha_pacs',name:'PDIV PACS ?',org:'fha',layer:'imaging unknown',kind:'pacs',x:345,y:385,tip:'PACS relationship is shown as a working assumption from the architecture screenshot. Marked ? because the uploaded PDFs confirm document/community/encounter details more clearly than exact PACS interface direction.'},
+
+ {id:'vch_broker',name:'VCH Broker',org:'vch',layer:'platform',kind:'broker',x:755,y:180,tip:'Vancouver Coastal interface broker area. VCH has a broad mix of community, document, cardiology, imaging, and clinical systems.'},
+ {id:'vch_paris',name:'VCHA PARIS',org:'vch',layer:'community',kind:'db',x:610,y:280,tip:'Community Documents: VCHA PARIS provides Clinical Care Plan, Clinical Summary, and Notes and Assessments. Some Youth Clinic, Women’s Services, and Communicable Disease casenotes are not available due to enhanced security settings.'},
+ {id:'vch_profile',name:'Profile EMR',org:'vch',layer:'community',kind:'db',x:710,y:280,tip:'Community Documents: Profile EMR Clinical Summary can include demographics, care team, alerts, allergies, next of kin, active and inactive medical problems, social/risk problems, procedures, measures, and appointments.'},
+ {id:'vch_softmed',name:'SoftMed / M*Modal',org:'vch',layer:'docs',kind:'db',x:810,y:280,tip:'Documents reference lists VCH facilities using SoftMed and/or M*Modal, including multiple residential and hospital sites.'},
+ {id:'vch_vpp',name:'VPP Cerner',org:'vch',layer:'docs',kind:'db',x:910,y:280,tip:'Documents reference includes VPP Cerner for VCH sites, including Lions Gate Hospital. Used here as a VCH source-system icon.'},
+ {id:'vch_muse',name:'MUSE',org:'vch',layer:'docs',kind:'db',x:610,y:385,tip:'Documents reference lists MUSE for VCH, including Lions Gate Hospital from April 28, 2018 to present.'},
+ {id:'vch_syngo',name:'Syngo / PACS',org:'vch',layer:'docs imaging',kind:'pacs',x:710,y:385,tip:'Documents reference lists Syngo for VCH sites, including Hilltop House, Lions Gate Evergreen House, and Lions Gate Hospital from May 10, 2022 to present.'},
+ {id:'vch_iclinic',name:'VCHA iClinic',org:'vch',layer:'docs',kind:'db',x:810,y:385,tip:'Documents reference includes VCHA iClinic as a report type by source system.'},
+ {id:'vch_prism',name:'PRISM-BC',org:'vch',layer:'docs',kind:'db',x:910,y:385,tip:'Documents reference lists PRISM-BC for VCH, including Lions Gate Hospital from July 26, 2023 to present.'},
+
+ {id:'iha_broker',name:'IHA Broker',org:'iha',layer:'platform',kind:'broker',x:1255,y:180,tip:'Interior Health interface broker area. IHA systems include Meditech, iClinic, PRISM-BC, and likely imaging/PACS relationships to confirm.'},
+ {id:'iha_medi',name:'IHA Meditech',org:'iha',layer:'docs enc',kind:'db',x:1145,y:300,tip:'Documents reference lists many IHA Meditech sources, often from March 28, 2017 to present. Encounters reference lists IHA Meditech from February 29, 2024 to present.'},
+ {id:'iha_iclinic',name:'IHA iClinic',org:'iha',layer:'docs',kind:'db',x:1255,y:300,tip:'Documents reference lists IHA iClinic from May 1, 2025 for sites such as Central Okanagan Association for Cardiac Health, Kamloops Primary Care Clinic, Kelowna Cardiology Associates, and Kelowna General Hospital.'},
+ {id:'iha_prism',name:'PRISM-BC',org:'iha',layer:'docs',kind:'db',x:1365,y:300,tip:'Documents reference lists PRISM-BC for IHA sites including Kelowna General Hospital, Penticton Regional Hospital, and Royal Inland Hospital from July 26, 2023 to present. Some entries are marked coming soon.'},
+ {id:'iha_pacs',name:'PDIV PACS ?',org:'iha',layer:'imaging unknown',kind:'pacs',x:1255,y:400,tip:'PACS relationship retained from the architecture screenshot but marked ? pending confirmation from detailed interface documentation.'},
+
+ {id:'nha_broker',name:'NHA Broker',org:'nha',layer:'platform',kind:'broker',x:1725,y:180,tip:'Northern Health interface broker area. NHA documents and encounters are primarily represented by NHA Cerner in the uploaded references.'},
+ {id:'nha_cerner',name:'NHA Cerner',org:'nha',layer:'docs enc',kind:'db',x:1665,y:300,tip:'Documents reference lists NHA Cerner from June 6, 2018 to present across multiple NHA facilities. Encounters are also represented in the uploaded encounter reference.'},
+ {id:'nha_prism',name:'PRISM-BC',org:'nha',layer:'docs',kind:'db',x:1785,y:300,tip:'Documents reference lists University Hospital of Northern British Columbia with PRISM-BC from July 26, 2023 to present.'},
+ {id:'nha_pacs',name:'PDIV PACS ?',org:'nha',layer:'imaging unknown',kind:'pacs',x:1725,y:390,tip:'PACS relationship retained from the architecture screenshot but marked ? until detailed interface evidence is confirmed.'},
+
+ {id:'viha_broker',name:'VIHA Broker',org:'viha',layer:'platform',kind:'broker',x:2145,y:180,tip:'Island Health interface broker area. VIHA documents and encounters are represented mainly by VIHA-Cerner, with PRISM-BC at selected sites.'},
+ {id:'viha_cerner',name:'VIHA-Cerner',org:'viha',layer:'docs enc',kind:'db',x:2080,y:300,tip:'Documents reference lists VIHA-Cerner at many Island Health sites, often from April 15, 2020 to present. Encounters reference says VIHA-Cerner is available in CareConnect from March 2020 to present, with earlier encounters depending on facility.'},
+ {id:'viha_prism',name:'PRISM-BC',org:'viha',layer:'docs',kind:'db',x:2210,y:300,tip:'Documents reference lists PRISM-BC for Island Health sites such as Nanaimo Regional General Hospital and Royal Jubilee Hospital from July 26, 2023 to present.'},
+ {id:'viha_pacs',name:'PDIC PACS ?',org:'viha',layer:'imaging unknown',kind:'pacs',x:2145,y:390,tip:'PDIC PACS relationship retained from the architecture screenshot and marked ? until exact interface direction is confirmed.'},
+
+ {id:'dib',name:'Data Ingestion Broker',org:'phsa',layer:'platform',kind:'broker',x:830,y:740,tip:'PHSA integration point for ADT, documents, and brokered feeds into the CareConnect platform. Orange solid arrows represent HL7-style push paths.'},
+ {id:'caIS',name:'CAIS',org:'phsa',layer:'docs',kind:'db',x:730,y:920,tip:'Documents reference: BC Cancer CAIS appears from January 1, 2009 to present, and CAIS via M*Modal appears from September 23, 2014 to present for BC Cancer centres.'},
+ {id:'cascade',name:'CASCADE',org:'phsa',layer:'docs unknown',kind:'db',x:830,y:920,tip:'Documents reference lists BC Cancer CASCADE as Coming Soon. Marked as uncertain/current-state transitional.'},
+ {id:'cw_cerner',name:'Legacy Cerner',org:'phsa',layer:'docs',kind:'db',x:930,y:920,tip:'Documents reference lists BC Children’s & Women’s Hospital and Health Centre Legacy Cerner from 2010 to present.'},
+ {id:'cc_ui',name:'CareConnect UI',org:'phsa',layer:'platform',kind:'ui',x:1170,y:820,tip:'Clinician-facing CareConnect user interface. In the diagram, this sits inside the blue CareConnect platform box.'},
+ {id:'cc_api',name:'CareConnect API',org:'phsa',layer:'platform',kind:'api',x:1320,y:820,tip:'CareConnect API / service layer. Supports retrieval and presentation through CareConnect UI and authorised services.'},
+ {id:'cc_ms',name:'Microservices',org:'phsa',layer:'platform',kind:'service',x:1245,y:920,tip:'CareConnect microservices layer. Grey dashed arrows represent API pull; blue dashed arrows represent imaging/PACS pull; green dashed arrows represent PARIS/community pull.'},
+ {id:'cc_cdr',name:'CareConnect CDR',org:'phsa',layer:'platform',kind:'db',x:1320,y:1010,tip:'CareConnect Clinical Data Repository. Receives brokered clinical data and stores CareConnect-viewable content.'},
+ {id:'primary_pacs',name:'Primary PACS',org:'phsa',layer:'imaging',kind:'pacs',x:1540,y:1030,tip:'PHSA Primary PACS / imaging store. Blue dashed line represents imaging/PACS pull in the working architecture.'},
+ {id:'hgw',name:'PHSA HealthGateway API',org:'phsa',layer:'platform',kind:'api',x:1540,y:850,tip:'PHSA HealthGateway API, shown as an authorised external/consumer-facing API path in the reference architecture.'},
+
+ {id:'lcb',name:'Lab Consolidation Broker',org:'hlth',layer:'labs',kind:'broker',x:2110,y:720,tip:'Lab Consolidation Broker. Orange solid lines represent consolidated HL7-style lab flow. Routed around boxes to reduce visual clutter.'},
+ {id:'hail',name:'HAIL',org:'hlth',layer:'labs',kind:'db',x:2245,y:720,tip:'Health Analytics and Insight Layer. Shown as receiving consolidated lab information and as an analytics source.'},
+ {id:'empi',name:'EMPI',org:'hlth',layer:'identity',kind:'person',x:2110,y:850,tip:'Enterprise Master Patient Index. CareConnect microservices query patient identity matching through API pull.'},
+ {id:'pharmanet',name:'PharmaNet',org:'hlth',layer:'meds',kind:'med',x:2245,y:850,tip:'Provincial medication and pharmacy records system. CareConnect pulls medication information through the authorised service path.'},
+ {id:'panorama',name:'Panorama',org:'hlth',layer:'community',kind:'db',x:2370,y:850,tip:'Provincial public health and immunization system. Shown as API pull from CareConnect microservices.'},
+
+ {id:'lifelabs',name:'LifeLabs BC',org:'nonha',layer:'labs',kind:'lab',x:190,y:1470,tip:'External laboratory entity. Shown as HL7-style lab feed into the Lab Consolidation Broker based on the overall architecture map.'},
+ {id:'cbs',name:'Canadian Blood Services ?',org:'nonha',layer:'labs unknown',kind:'lab',x:340,y:1470,tip:'Non-HA / other health organization database placeholder. Included because blood and transfusion-related sources appear in the broader current-state ecosystem, but the exact interface, database ownership, and CareConnect direction still need confirmation.'},
+ {id:'community_pharmacies',name:'Community Pharmacies ?',org:'nonha',layer:'meds unknown',kind:'med',x:490,y:1470,tip:'Non-HA / other health organization placeholder. Community pharmacies contribute dispense information into the provincial medication ecosystem, but the exact connection type from pharmacy systems is not confirmed here. CareConnect medication viewing should be represented through PharmaNet unless confirmed otherwise.'},
+ {id:'fnha_other',name:'FNHA / Indigenous health orgs ?',org:'nonha',layer:'community unknown',kind:'db',x:640,y:1470,tip:'Non-HA / other health organization placeholder for First Nations and Indigenous health partners. Shown as an unknown database/source area until the specific source systems, data sharing agreements, and interface paths are confirmed.'},
+ {id:'bcehs',name:'BCEHS CP Docs',org:'nonha',layer:'community docs',kind:'doc',x:190,y:1590,tip:'Community Documents reference: Community Paramedicine documents are manually pushed to CareConnect ad hoc at the discretion of the Community Paramedicine team and are viewable in Notes & Assessments.'},
+ {id:'pphis',name:'PPHIS Forms',org:'nonha',layer:'community docs',kind:'doc',x:340,y:1590,tip:'Community Documents reference: Family Health User Defined Forms from Provincial Public Health Information Systems include child, mother, pregnancy, and sexual health assessments.'},
+ {id:'mois',name:'Virtual EMR / MOIS',org:'nonha',layer:'community',kind:'db',x:490,y:1590,tip:'Community Documents reference: HealthLink BC Virtual EMR (MOIS) provides Clinical Care Plans and Notes & Assessments for transition-of-care purposes.'},
+ {id:'pcn_mois',name:'PCN Pharmacist MOIS',org:'nonha',layer:'community meds',kind:'med',x:640,y:1590,tip:'Community Documents reference: Pharmacist Consult Notes from PCN Pharmacist MOIS are viewable in Notes & Assessments.'},
+ {id:'privacy_lock',name:'PARIS privacy blocks',org:'locked',layer:'unknown',kind:'lock',x:1030,y:1470,tip:'Community Documents reference: if a patient record has a privacy block at the PARIS end, those records are not made available in CareConnect.'},
+ {id:'military_members',name:'Military member records ?',org:'locked',layer:'unknown',kind:'lock',x:1180,y:1470,tip:'Data lock placeholder for military/federal health records. The broader ecosystem references this kind of population as a possible external/locked data area, but exact database name, ownership, and CareConnect interface are not confirmed.'},
+ {id:'private_dictation',name:'Private dictation systems ?',org:'locked',layer:'unknown',kind:'lock',x:1330,y:1470,tip:'Data lock placeholder for private or third-party dictation/transcription systems. Included as a known/likely source class where details are not confirmed.'},
+ {id:'redacted_records',name:'Redacted / protected records ?',org:'locked',layer:'unknown',kind:'lock',x:1480,y:1470,tip:'Data lock placeholder for records withheld because of privacy, enhanced security, policy exclusions, or source-system restrictions.'},
+ {id:'federal_health',name:'Federal health sources ?',org:'locked',layer:'unknown',kind:'lock',x:1030,y:1590,tip:'Unknown source placeholder for federal health systems or cross-jurisdictional records. Interface type and inclusion in CareConnect are not confirmed.'},
+ {id:'corrections_health',name:'Corrections health ?',org:'locked',layer:'unknown',kind:'lock',x:1180,y:1590,tip:'Unknown source placeholder for correctional health-related systems. Included as a locked/uncertain data area until source, policy, and connection details are confirmed.'},
+ {id:'private_clinics',name:'Private clinics / imaging ?',org:'locked',layer:'unknown',kind:'lock',x:1330,y:1590,tip:'Unknown source placeholder for private clinics or private imaging services that may interact with the health data ecosystem. Exact interfaces are not confirmed.'},
+ {id:'legacy_regional',name:'Legacy regional DBs ?',org:'locked',layer:'unknown',kind:'lock',x:1480,y:1590,tip:'Unknown source placeholder for legacy regional databases not yet mapped. Marked with ? until ownership, content, and data flow are confirmed.'}
+];
+const edges=[
+ {id:'e_fha_medi_b',from:'fha_medi',to:'fha_broker',type:'hl7',label:'docs / encounters',route:'straight',layers:'docs enc'},
+ {id:'e_fha_exp_b',from:'fha_exp',to:'fha_broker',type:'hl7',label:'encounters',route:'straight',layers:'enc'},
+ {id:'e_fha_paris_b',from:'fha_paris',to:'fha_broker',type:'paris',label:'community',route:'straight',layers:'community'},
+ {id:'e_fha_prism_b',from:'fha_prism',to:'fha_broker',type:'hl7',label:'cardiac docs',route:'straight',layers:'docs'},
+ {id:'e_fha_pacs_ms',from:'fha_pacs',to:'cc_ms',type:'pacs',label:'PACS pull ?',route:'bottom',layers:'imaging unknown'},
+ {id:'e_fha_b_dib',from:'fha_broker',to:'dib',type:'hl7',label:'HL7 push',route:'bottom',layers:'docs enc'},
+ {id:'e_fha_paris_ms',from:'fha_paris',to:'cc_ms',type:'paris',label:'PARIS pull',route:'bottom',layers:'community'},
+
+ {id:'e_vch_paris_b',from:'vch_paris',to:'vch_broker',type:'paris',label:'community',route:'straight',layers:'community'},
+ {id:'e_vch_profile_b',from:'vch_profile',to:'vch_broker',type:'api',label:'profile',route:'straight',layers:'community'},
+ {id:'e_vch_soft_b',from:'vch_softmed',to:'vch_broker',type:'hl7',label:'docs',route:'straight',layers:'docs'},
+ {id:'e_vch_vpp_b',from:'vch_vpp',to:'vch_broker',type:'hl7',label:'docs',route:'straight',layers:'docs'},
+ {id:'e_vch_muse_b',from:'vch_muse',to:'vch_broker',type:'hl7',label:'cardio docs',route:'straight',layers:'docs'},
+ {id:'e_vch_syngo_ms',from:'vch_syngo',to:'cc_ms',type:'pacs',label:'imaging pull',route:'bottom',layers:'imaging'},
+ {id:'e_vch_iclinic_b',from:'vch_iclinic',to:'vch_broker',type:'hl7',label:'clinic docs',route:'straight',layers:'docs'},
+ {id:'e_vch_prism_b',from:'vch_prism',to:'vch_broker',type:'hl7',label:'cardiac docs',route:'straight',layers:'docs'},
+ {id:'e_vch_b_dib',from:'vch_broker',to:'dib',type:'hl7',label:'HL7 push',route:'bottom',layers:'docs'},
+ {id:'e_vch_paris_ms',from:'vch_paris',to:'cc_ms',type:'paris',label:'agreement gated',route:'bottom',layers:'community'},
+
+ {id:'e_iha_medi_b',from:'iha_medi',to:'iha_broker',type:'hl7',label:'docs / encounters',route:'straight',layers:'docs enc'},
+ {id:'e_iha_iclinic_b',from:'iha_iclinic',to:'iha_broker',type:'hl7',label:'clinic docs',route:'straight',layers:'docs'},
+ {id:'e_iha_prism_b',from:'iha_prism',to:'iha_broker',type:'hl7',label:'cardiac docs',route:'straight',layers:'docs'},
+ {id:'e_iha_pacs_ms',from:'iha_pacs',to:'cc_ms',type:'pacs',label:'PACS pull ?',route:'bottom',layers:'imaging unknown'},
+ {id:'e_iha_b_dib',from:'iha_broker',to:'dib',type:'hl7',label:'HL7 push',route:'bottom',layers:'docs enc'},
+
+ {id:'e_nha_cerner_b',from:'nha_cerner',to:'nha_broker',type:'hl7',label:'docs / encounters',route:'straight',layers:'docs enc'},
+ {id:'e_nha_prism_b',from:'nha_prism',to:'nha_broker',type:'hl7',label:'cardiac docs',route:'straight',layers:'docs'},
+ {id:'e_nha_pacs_ms',from:'nha_pacs',to:'cc_ms',type:'pacs',label:'PACS pull ?',route:'bottom',layers:'imaging unknown'},
+ {id:'e_nha_b_dib',from:'nha_broker',to:'dib',type:'hl7',label:'HL7 push',route:'bottom',layers:'docs enc'},
+
+ {id:'e_viha_cerner_b',from:'viha_cerner',to:'viha_broker',type:'hl7',label:'docs / encounters',route:'straight',layers:'docs enc'},
+ {id:'e_viha_prism_b',from:'viha_prism',to:'viha_broker',type:'hl7',label:'cardiac docs',route:'straight',layers:'docs'},
+ {id:'e_viha_pacs_ms',from:'viha_pacs',to:'cc_ms',type:'pacs',label:'PACS pull ?',route:'bottom',layers:'imaging unknown'},
+ {id:'e_viha_b_dib',from:'viha_broker',to:'dib',type:'hl7',label:'HL7 push',route:'bottom',layers:'docs enc'},
+
+ {id:'e_dib_cdr',from:'dib',to:'cc_cdr',type:'hl7',label:'ingest',route:'straight',layers:'platform'},
+ {id:'e_cais_dib',from:'caIS',to:'dib',type:'hl7',label:'BC Cancer docs',route:'straight',layers:'docs'},
+ {id:'e_cascade_dib',from:'cascade',to:'dib',type:'hl7',label:'coming soon ?',route:'straight',layers:'docs unknown'},
+ {id:'e_cw_dib',from:'cw_cerner',to:'dib',type:'hl7',label:'C&W docs',route:'straight',layers:'docs'},
+ {id:'e_ui_api',from:'cc_ui',to:'cc_api',type:'info',label:'UI calls API',route:'straight',layers:'platform'},
+ {id:'e_api_ms',from:'cc_api',to:'cc_ms',type:'info',label:'services',route:'straight',layers:'platform'},
+ {id:'e_ms_cdr',from:'cc_ms',to:'cc_cdr',type:'info',label:'read/write',route:'straight',layers:'platform'},
+ {id:'e_ms_pacs',from:'cc_ms',to:'primary_pacs',type:'pacs',label:'imaging',route:'right',layers:'imaging'},
+ {id:'e_hgw_api',from:'hgw',to:'cc_api',type:'info',label:'external API',route:'straight',layers:'platform'},
+
+ {id:'e_lcb_hail',from:'lcb',to:'hail',type:'hl7',label:'consolidated labs',route:'straight',layers:'labs'},
+ {id:'e_ms_empi',from:'cc_ms',to:'empi',type:'api',label:'identity pull',route:'right',layers:'identity'},
+ {id:'e_ms_pharma',from:'cc_ms',to:'pharmanet',type:'api',label:'medication pull',route:'right',layers:'meds'},
+ {id:'e_ms_panorama',from:'cc_ms',to:'panorama',type:'api',label:'immunization pull',route:'right',layers:'community'},
+ {id:'e_lifelabs_lcb',from:'lifelabs',to:'lcb',type:'hl7',label:'lab feed',route:'outside',layers:'labs'},
+ {id:'e_cbs_lcb',from:'cbs',to:'lcb',type:'info',label:'unknown blood/lab path ?',route:'outside',layers:'labs unknown'},
+ {id:'e_pharmacies_pharmanet',from:'community_pharmacies',to:'pharmanet',type:'info',label:'dispense ecosystem ?',route:'outside',layers:'meds unknown'},
+ {id:'e_fnha_ms',from:'fnha_other',to:'cc_ms',type:'info',label:'unknown agreement path ?',route:'outside',layers:'community unknown'},
+ {id:'e_bcehs_dib',from:'bcehs',to:'dib',type:'hl7',label:'manual docs',route:'outside',layers:'community docs'},
+ {id:'e_pphis_dib',from:'pphis',to:'dib',type:'hl7',label:'family health forms',route:'outside',layers:'community docs'},
+ {id:'e_mois_ms',from:'mois',to:'cc_ms',type:'paris',label:'community docs',route:'outside',layers:'community'},
+ {id:'e_pcn_ms',from:'pcn_mois',to:'cc_ms',type:'paris',label:'pharmacist notes',route:'outside',layers:'community meds'}
+];
+const map=document.getElementById('map'), stage=document.getElementById('stage'), nodeLayer=document.getElementById('nodeLayer'), wireLayer=document.getElementById('wireLayer'), tip=document.getElementById('tip');
+let state={scale:.45,tx:10,ty:10,view:'full',selected:null,filters:{org:new Set(Object.keys(orgs)),conn:new Set(Object.keys(conns)),layer:new Set(Object.keys(layers))}};
+function addBoundary(b){const d=document.createElement('div');d.className='boundary '+(b.cls||'');d.style.left=b.x+'px';d.style.top=b.y+'px';d.style.width=b.w+'px';d.style.height=b.h+'px';d.innerHTML=`<div class="bt">${b.title}</div><div class="bs">${b.sub}</div>`;map.appendChild(d)}
+function addNode(n){const d=document.createElement('div');d.className='node';d.id='n_'+n.id;d.dataset.id=n.id;d.dataset.org=n.org;d.dataset.layer=n.layer;d.style.left=n.x+'px';d.style.top=n.y+'px';d.innerHTML=`<div class="ico">${icon(n.kind)}</div><div class="name">${n.name}${n.layer.includes('unknown')?' <span class="question">?</span>':''}</div><div class="meta">${orgs[n.org]||n.org}</div>`;nodeLayer.appendChild(d);wireEventsNode(d,n)}
+function applyTransform(){map.style.transform=`translate(${state.tx}px,${state.ty}px) scale(${state.scale})`}
+function centre(n){return {x:n.x+43,y:n.y+24}}
+function getNode(id){return nodes.find(n=>n.id===id)}
+function routePath(a,b,e){let A=centre(a),B=centre(b); if(e.route==='straight') return `M${A.x},${A.y} L${B.x},${B.y}`;
+ const midY=Math.max(A.y,B.y)+80, topY=Math.min(A.y,B.y)-50;
+ if(e.route==='bottom') return `M${A.x},${A.y} C${A.x},${midY} ${B.x},${midY} ${B.x},${B.y}`;
+ if(e.route==='right') return `M${A.x},${A.y} C${A.x+260},${A.y} ${B.x-260},${B.y} ${B.x},${B.y}`;
+ if(e.route==='outside') return `M${A.x},${A.y} C${A.x},${A.y-250} ${B.x-360},${B.y+220} ${B.x},${B.y}`;
+ return `M${A.x},${A.y} C${A.x},${topY} ${B.x},${topY} ${B.x},${B.y}`;}
+function marker(type){return {hl7:'url(#arrOrange)',api:'url(#arrGrey)',pacs:'url(#arrBlue)',paris:'url(#arrGreen)',info:'url(#arrGrey)'}[type]}
+function drawEdges(){wireLayer.innerHTML=''; edges.forEach(e=>{const a=getNode(e.from),b=getNode(e.to); if(!a||!b)return; const p=document.createElementNS('http://www.w3.org/2000/svg','path');p.setAttribute('id','w_'+e.id);p.setAttribute('class','wire '+e.type);p.setAttribute('d',routePath(a,b,e));p.setAttribute('marker-end',marker(e.type));p.dataset.id=e.id;p.addEventListener('mouseenter',ev=>showTip(ev,e,true));p.addEventListener('mousemove',moveTip);p.addEventListener('mouseleave',hideTip);p.addEventListener('click',ev=>{selectItem('edge',e.id);ev.stopPropagation()});wireLayer.appendChild(p);
+ const A=centre(a),B=centre(b); if(state.view!=='simple'){const t=document.createElementNS('http://www.w3.org/2000/svg','text');t.setAttribute('class','wireLabel');t.setAttribute('x',(A.x+B.x)/2);t.setAttribute('y',(A.y+B.y)/2-8);t.textContent=e.label;wireLayer.appendChild(t)} }); applyFilters()}
+function wireEventsNode(d,n){let dragging=false, sx=0,sy=0, ox=0,oy=0;d.addEventListener('mouseenter',e=>showTip(e,n,false));d.addEventListener('mousemove',moveTip);d.addEventListener('mouseleave',hideTip);d.addEventListener('click',e=>{selectItem('node',n.id);e.stopPropagation()});d.addEventListener('mousedown',e=>{dragging=true;d.classList.add('dragging');sx=e.clientX;sy=e.clientY;ox=n.x;oy=n.y;e.stopPropagation()});window.addEventListener('mousemove',e=>{if(!dragging)return;n.x=ox+(e.clientX-sx)/state.scale;n.y=oy+(e.clientY-sy)/state.scale;d.style.left=n.x+'px';d.style.top=n.y+'px';drawEdges()});window.addEventListener('mouseup',()=>{dragging=false;d.classList.remove('dragging')})}
+function showTip(ev,obj,isEdge){let html;if(isEdge){const a=getNode(obj.from),b=getNode(obj.to);html=`<b>${a.name} → ${b.name}</b>${obj.label}<div class="muted">Connection: ${conns[obj.type]}. Layer: ${obj.layers}. Arrows are routed around infrastructure boxes where possible to avoid covering labels and icons.</div><span class="pill">${obj.type}</span>`}else{html=`<b>${obj.name}</b>${obj.tip}<div class="muted">Org: ${orgs[obj.org]}. Layers: ${obj.layer}.</div><span class="pill">${obj.org}</span> ${obj.layer.split(' ').map(x=>`<span class="pill">${x}</span>`).join('')}`}tip.innerHTML=html;tip.style.display='block';moveTip(ev)}
+function moveTip(e){tip.style.left=Math.min(e.clientX+14,window.innerWidth-380)+'px';tip.style.top=Math.min(e.clientY+14,window.innerHeight-220)+'px'}function hideTip(){tip.style.display='none'}
+function selectItem(type,id){document.querySelectorAll('.selected').forEach(x=>x.classList.remove('selected'));state.selected={type,id}; if(type==='node'){document.getElementById('n_'+id)?.classList.add('selected')}else{document.getElementById('w_'+id)?.classList.add('selected')}renderEditBox()}
+function renderEditBox(){const box=document.getElementById('editBox');box.style.display='block';const s=state.selected;if(!s){box.innerHTML='';return} if(s.type==='node'){const n=getNode(s.id);box.innerHTML=`<div class="field"><label>Name</label><input id="editName" value="${n.name}"></div><div class="field"><label>Org</label><select id="editOrg">${Object.keys(orgs).map(o=>`<option ${o===n.org?'selected':''} value="${o}">${orgs[o]}</option>`).join('')}</select></div><div class="field"><label>Layer</label><input id="editLayer" value="${n.layer}"></div><textarea id="editTip">${n.tip}</textarea><button id="applyEdit">Apply</button>`;document.getElementById('applyEdit').onclick=()=>{n.name=document.getElementById('editName').value;n.org=document.getElementById('editOrg').value;n.layer=document.getElementById('editLayer').value;n.tip=document.getElementById('editTip').value;document.getElementById('n_'+n.id).querySelector('.name').innerHTML=n.name+(n.layer.includes('unknown')?' <span class="question">?</span>':'');document.getElementById('n_'+n.id).querySelector('.meta').textContent=orgs[n.org]||n.org;applyFilters()}} else {const e=edges.find(x=>x.id===s.id);box.innerHTML=`<div class="field"><label>Label</label><input id="editLabel" value="${e.label}"></div><div class="field"><label>Type</label><select id="editType">${Object.keys(conns).map(c=>`<option ${c===e.type?'selected':''} value="${c}">${conns[c]}</option>`).join('')}</select></div><div class="field"><label>Route</label><select id="editRoute">${['straight','bottom','right','outside'].map(r=>`<option ${r===e.route?'selected':''}>${r}</option>`).join('')}</select></div><button id="flipEdge">Flip direction</button> <button id="applyEdit">Apply</button>`;document.getElementById('flipEdge').onclick=()=>{[e.from,e.to]=[e.to,e.from];drawEdges();selectItem('edge',e.id)};document.getElementById('applyEdit').onclick=()=>{e.label=document.getElementById('editLabel').value;e.type=document.getElementById('editType').value;e.route=document.getElementById('editRoute').value;drawEdges();selectItem('edge',e.id)}}}
+function makeFilters(){const make=(id,obj,set)=>{const c=document.getElementById(id);c.innerHTML='';Object.entries(obj).forEach(([k,v])=>{const s=document.createElement('span');s.className='chip on';s.textContent=v;s.dataset.key=k;s.onclick=()=>{if(set.has(k)){set.delete(k);s.className='chip off'}else{set.add(k);s.className='chip on'}applyFilters()};c.appendChild(s)})};make('orgFilters',orgs,state.filters.org);make('connFilters',conns,state.filters.conn);make('layerFilters',layers,state.filters.layer)}
+function isNodeVisible(n){if(!state.filters.org.has(n.org))return false; if(state.view==='simple' && !['platform','labs','identity','meds'].some(l=>n.layer.includes(l)) && ['iha_iclinic','fha_prism','vch_muse','vch_iclinic','nha_pacs','viha_pacs','unknown_systems','cascade'].includes(n.id))return false; return n.layer.split(' ').some(l=>state.filters.layer.has(l))}
+function applyFilters(){nodes.forEach(n=>{document.getElementById('n_'+n.id)?.classList.toggle('hidden',!isNodeVisible(n))});edges.forEach(e=>{const a=getNode(e.from),b=getNode(e.to);const ok=isNodeVisible(a)&&isNodeVisible(b)&&state.filters.conn.has(e.type)&&e.layers.split(' ').some(l=>state.filters.layer.has(l));document.getElementById('w_'+e.id)?.classList.toggle('hidden',!ok)});document.querySelectorAll('.wireLabel').forEach(t=>{if(state.view==='simple')t.style.display='none'})}
+function init(){boundaries.forEach(addBoundary);nodes.forEach(addNode);makeFilters();drawEdges();applyTransform()}init();
+let mapDrag=false,msx=0,msy=0,mtx=0,mty=0;stage.addEventListener('mousedown',e=>{if(e.target.closest('.node')||e.target.closest('.wire'))return;mapDrag=true;stage.classList.add('dragging');msx=e.clientX;msy=e.clientY;mtx=state.tx;mty=state.ty});window.addEventListener('mousemove',e=>{if(!mapDrag)return;state.tx=mtx+e.clientX-msx;state.ty=mty+e.clientY-msy;applyTransform()});window.addEventListener('mouseup',()=>{mapDrag=false;stage.classList.remove('dragging')});
+stage.addEventListener('wheel',e=>{e.preventDefault();const old=state.scale;const f=e.deltaY<0?1.08:.92;state.scale=Math.max(.22,Math.min(1.8,state.scale*f));const r=stage.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;state.tx=mx-(mx-state.tx)*(state.scale/old);state.ty=my-(my-state.ty)*(state.scale/old);applyTransform()},{passive:false});
+document.getElementById('zoomIn').onclick=()=>{state.scale=Math.min(1.8,state.scale*1.15);applyTransform()};document.getElementById('zoomOut').onclick=()=>{state.scale=Math.max(.22,state.scale*.87);applyTransform()};document.getElementById('homeBtn').onclick=()=>{state.scale=.45;state.tx=10;state.ty=10;applyTransform()};document.getElementById('fitBtn').onclick=()=>{const w=stage.clientWidth,h=stage.clientHeight;state.scale=Math.min(w/2600,h/1500);state.tx=20;state.ty=20;applyTransform()};
+document.querySelectorAll('[data-view]').forEach(c=>c.onclick=()=>{document.querySelectorAll('[data-view]').forEach(x=>x.classList.remove('on'));c.classList.add('on');state.view=c.dataset.view; if(state.view==='all') {Object.values(state.filters).forEach(set=>{set.clear()});Object.keys(orgs).forEach(k=>state.filters.org.add(k));Object.keys(conns).forEach(k=>state.filters.conn.add(k));Object.keys(layers).forEach(k=>state.filters.layer.add(k));makeFilters()} drawEdges()});
+document.addEventListener('click',()=>{state.selected=null;document.querySelectorAll('.selected').forEach(x=>x.classList.remove('selected'));document.getElementById('editBox').style.display='none'});
+document.getElementById('saveBtn').onclick=()=>{localStorage.setItem('ccmap-v9',JSON.stringify({nodes,edges}));alert('Saved in this browser.')};document.getElementById('loadBtn').onclick=()=>{const s=localStorage.getItem('ccmap-v9');if(!s)return alert('No saved edits yet.');const d=JSON.parse(s);d.nodes.forEach(sn=>{const n=getNode(sn.id);if(n)Object.assign(n,sn)});d.edges.forEach(se=>{const e=edges.find(x=>x.id===se.id);if(e)Object.assign(e,se)});document.querySelectorAll('.node').forEach(el=>{const n=getNode(el.dataset.id);el.style.left=n.x+'px';el.style.top=n.y+'px';el.querySelector('.name').innerHTML=n.name+(n.layer.includes('unknown')?' <span class="question">?</span>':'')});drawEdges();alert('Loaded saved edits.')};document.getElementById('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify({nodes,edges},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='careconnect-map-edits.json';a.click()};
 </script>
 </body>
 </html>
