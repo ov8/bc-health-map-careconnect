@@ -233,4 +233,4 @@ document.addEventListener('click',()=>{state.selected=null;document.querySelecto
 document.getElementById('saveBtn').onclick=()=>{localStorage.setItem('ccmap-v9',JSON.stringify({nodes,edges}));alert('Saved in this browser.')};document.getElementById('loadBtn').onclick=()=>{const s=localStorage.getItem('ccmap-v9');if(!s)return alert('No saved edits yet.');const d=JSON.parse(s);d.nodes.forEach(sn=>{const n=getNode(sn.id);if(n)Object.assign(n,sn)});d.edges.forEach(se=>{const e=edges.find(x=>x.id===se.id);if(e)Object.assign(e,se)});document.querySelectorAll('.node').forEach(el=>{const n=getNode(el.dataset.id);el.style.left=n.x+'px';el.style.top=n.y+'px';el.querySelector('.name').innerHTML=n.name+(n.layer.includes('unknown')?' <span class="question">?</span>':'')});drawEdges();alert('Loaded saved edits.')};document.getElementById('exportBtn').onclick=()=>{const blob=new Blob([JSON.stringify({nodes,edges},null,2)],{type:'application/json'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='careconnect-map-edits.json';a.click()};
 </script>
 </body>
-</html>
+</html> 
